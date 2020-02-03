@@ -235,7 +235,12 @@ const defaultRenderers = ({SyntaxHighlighter}) => ({
     */
     return <Heading {...props} level={props.level + 1} />
   },
-  link: Link,
+  /**
+   * NOTE(stopachka)
+   * Using plan `a` instead of `Link`, because `Link` overrides the font weight
+   * This makes it so if an `a` tag is inside of an `Heading`, it's weight will be different
+   */
+  link: (props) => <a {...props} style={{textDecoration: 'underline'}} target="_blank" />,
   linkReference(props) {
     return <Anchor {...props} />;
   },
