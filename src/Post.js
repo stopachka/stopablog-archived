@@ -200,7 +200,7 @@ const EmojiPicker = ({
   };
   return (
     <>
-      <p style={{textAlign: 'left', margin: '5px 0 0'}}>Pick your reaction</p>
+      <Text size="xsmall" style={{textAlign: 'left', margin: '5px 0 0'}}>Pick your reaction</Text>
       <div style={{height: 1, background: '#ddd', margin: '5px 0'}} />
       {isLoggedIn ? (
         <>
