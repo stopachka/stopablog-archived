@@ -50,6 +50,8 @@ import type {App_PostQueryResponse} from './__generated__/App_PostQuery.graphql'
 import type {Environment} from 'relay-runtime';
 import type {RelayNetworkError} from 'react-relay';
 
+const SERIF_FAM = 'Playfair Display, serif';
+const SANS_SERIF_FAM = 'Fira Sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif';
 export const theme = deepMerge(generate(24, 10), {
   global: {
     colors: {
@@ -58,9 +60,18 @@ export const theme = deepMerge(generate(24, 10), {
       focus: 'rgba(60, 199, 183, 0.75)',
     },
     font: {
-      family:
-        '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif',
+      family: SANS_SERIF_FAM,
     },
+  },
+  heading: {
+    font: {
+      family: SERIF_FAM
+    }
+  },
+  paragraph: {
+    medium: {
+      height: '1.6'
+    }
   },
   anchor: {
     fontWeight: 'normal',
@@ -98,7 +109,10 @@ function Header({gitHub, adminLinks}) {
             side: 'bottom',
             color: 'rgba(0,0,0,0.1)',
           }}>
-          <Heading style={{marginTop: 0}} level={1}>
+          <Heading style={{
+            marginTop: 0,
+            fontFamily: SANS_SERIF_FAM
+            }} level={2}>
             <Link
               getProps={({isCurrent}) => ({
                 style: isCurrent
