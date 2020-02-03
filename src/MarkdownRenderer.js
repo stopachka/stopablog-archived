@@ -169,7 +169,12 @@ export function emojify(s: string): string {
 }
 
 function Link(props) {
-  return <Anchor {...props} />;
+  /**
+   * NOTE(stopachka)
+   * Using plan `a` instead of `Anchord`, because `Anchor` overrides the font weight
+   * This makes it so if an `a` tag is inside of an `Heading`, it's weight will be different
+   */
+  return <a {...props} style={{textDecoration: 'underline'}} target="_blank" />
 }
 
 const defaultRenderers = ({SyntaxHighlighter}) => ({
@@ -197,7 +202,7 @@ const defaultRenderers = ({SyntaxHighlighter}) => ({
       props.children &&
       props.children.length === 1 &&
       props.children[0].type === Link;
-
+    
     if (isLink) {
       const link = props.children[0];
       const isSelfLink =
@@ -235,12 +240,7 @@ const defaultRenderers = ({SyntaxHighlighter}) => ({
     */
     return <Heading {...props} level={props.level + 1} />
   },
-  /**
-   * NOTE(stopachka)
-   * Using plan `a` instead of `Link`, because `Link` overrides the font weight
-   * This makes it so if an `a` tag is inside of an `Heading`, it's weight will be different
-   */
-  link: (props) => <a {...props} style={{textDecoration: 'underline'}} target="_blank" />,
+  link: Link,
   linkReference(props) {
     return <Anchor {...props} />;
   },
