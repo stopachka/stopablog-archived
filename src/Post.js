@@ -494,9 +494,18 @@ export const Post = ({relay, post, context}: Props) => {
                     </Box>
                   </a>
                   <Box>
-                    <a href={node.url}>
-                      <Text size="small">{node.name || node.login}</Text>
-                    </a>
+                    {
+                      // TODO(stopachka)
+                      // Currently linking to twitter for now. 
+                      // May be good to expand this ability to other authors later
+                      node.login === 'stopachka' 
+                        ? <a href={`https://twitter.com/${node.login}`}>
+                            <Text size="small">{node.name || node.login}</Text>
+                          </a>
+                        : <a href={node.url}>
+                            <Text size="small">{node.name || node.login}</Text>
+                          </a>
+                    }
                     <Text
                       size="xsmall"
                       style={{visibility: i === 0 ? 'visible' : 'hidden'}}>

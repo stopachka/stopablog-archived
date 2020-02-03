@@ -228,7 +228,13 @@ const defaultRenderers = ({SyntaxHighlighter}) => ({
 
     return <P {...props} />;
   },
-  heading: Heading,
+  heading(props) {
+    /** 
+     * NOTE(stopachka) 
+     * Because this content is inside of a post, the highest heading level should be H2
+    */
+    return <Heading {...props} level={props.level + 1} />
+  },
   link: Link,
   linkReference(props) {
     return <Anchor {...props} />;
