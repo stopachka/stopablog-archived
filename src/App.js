@@ -112,7 +112,7 @@ function Header({gitHub, adminLinks}) {
           <Heading style={{
             marginTop: 0,
             fontFamily: SANS_SERIF_FAM
-            }} level={2}>
+            }} level={3}>
             <Link
               getProps={({isCurrent}) => ({
                 style: isCurrent
