@@ -60,7 +60,7 @@ export const theme = deepMerge(generate(24, 10), {
       focus: 'rgba(60, 199, 183, 0.75)',
     },
     font: {
-      family: SANS_SERIF_FAM,
+      family: SANS_SERIF_FAM
     },
   },
   heading: {
@@ -70,6 +70,7 @@ export const theme = deepMerge(generate(24, 10), {
   },
   paragraph: {
     medium: {
+      size: '21px',
       height: '1.6'
     }
   },
