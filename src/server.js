@@ -69,10 +69,6 @@ function buildHtml({
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <link rel="manifest" href="/manifest.json" />
-    <link 
-      href="https://fonts.googleapis.com/css?family=Fira+Sans|Playfair+Display" 
-      rel="stylesheet"
-    />
     ${styleTags ? styleTags : ''}
     ${
       assets.client.css

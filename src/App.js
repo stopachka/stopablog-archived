@@ -50,8 +50,7 @@ import type {App_PostQueryResponse} from './__generated__/App_PostQuery.graphql'
 import type {Environment} from 'relay-runtime';
 import type {RelayNetworkError} from 'react-relay';
 
-const SERIF_FAM = 'Playfair Display, serif';
-const SANS_SERIF_FAM = 'Fira Sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif';
+const SANS_SERIF_FAM = 'Helvetica Neue, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif';
 export const theme = deepMerge(generate(24, 10), {
   global: {
     colors: {
@@ -65,7 +64,7 @@ export const theme = deepMerge(generate(24, 10), {
   },
   heading: {
     font: {
-      family: SERIF_FAM
+      family: SANS_SERIF_FAM
     }
   },
   paragraph: {
