@@ -69,7 +69,7 @@ export const theme = deepMerge(generate(24, 10), {
   },
   paragraph: {
     medium: {
-      size: '21px',
+      size: '1.1em',
       height: '1.6'
     }
   },
