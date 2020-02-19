@@ -396,7 +396,7 @@ export function postPath({
   },
   viewComments?: boolean,
 }) {
-  return `/post/${post.number}/${slugify(post.title)}${
+  return `/post/${post.number}${
     viewComments ? '#comments' : ''
   }`;
 }
@@ -461,13 +461,9 @@ export const Post = ({relay, post, context}: Props) => {
     <PostBox>
       <Box pad="medium">
         <Heading level={1} margin="none">
-          {context === 'details' ? (
-            post.title
-          ) : (
-            <Link style={{color: 'inherit'}} to={postPath({post})}>
-              {post.title}
-            </Link>
-          )}
+          <Link style={{color: 'inherit'}} to={postPath({post})}>
+            {post.title}
+          </Link>
         </Heading>
 
         {authors.length > 0 ? (
