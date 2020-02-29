@@ -212,6 +212,15 @@ function PostsRoot({preloadedQuery}: {preloadedQuery: any}) {
   } else {
     return (
       <>
+        <Helmet>
+          <meta name="description" content="Read essays by Stepan Parunashvili." />
+          <meta property="og:description" content="Read essays by Stepan Parunashvili" />
+          <meta property="og:title" content="Stepan Parunashvili" />
+          <meta property="og:site_name" content="Stepan Parunashvili" />
+          <meta property="og:type" content="website" />
+          <meta property="og:locale" content="en_US" />
+          <link rel="me" href="https://twitter.com/stopachka" />
+        </Helmet>
         <Header gitHub={data.gitHub} adminLinks={[]} />
         <Posts repository={respository} />
       </>
@@ -250,6 +259,7 @@ export const postRootQuery = graphql`
           title
           id
           number
+          body
           ...Post_post
           ...Comments_post
         }
@@ -279,6 +289,14 @@ function PostRoot({preloadedQuery}: {preloadedQuery: any}) {
       <>
         <Helmet>
           <title>{post.title}</title>
+          <meta name="description" content={post.body.slice(0, 250)} />
+          <meta property="og:description" content={post.body.slice(0, 250)} />
+          <meta property="og:title" content={post.title} />
+          <meta property="og:site_name" content="Stepan Parunashvili" />
+          <meta property="og:type" content="article" />
+          <meta property="og:locale" content="en_US" />
+          <meta property="article:author" content="Stepan Parunashvili" />
+          <link rel="me" href="https://twitter.com/stopachka" />
         </Helmet>
         <Header
           gitHub={data.gitHub}

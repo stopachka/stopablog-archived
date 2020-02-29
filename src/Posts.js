@@ -46,6 +46,7 @@ const Posts = ({relay, repository}: Props) => {
   const issues = repository.issues.edges || [];
 
   return (
+    <>
     <Box>
       {issues.map((e, i) =>
         e && e.node ? (
@@ -63,6 +64,7 @@ const Posts = ({relay, repository}: Props) => {
         </Box>
       ) : null}
     </Box>
+    </>
   );
 };
 
