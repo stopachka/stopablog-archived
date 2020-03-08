@@ -459,70 +459,22 @@ export const Post = ({relay, post, context}: Props) => {
   const authors = post.assignees.nodes || [];
   return (
     <PostBox>
-      <Box pad="medium">
+      <Box pad={{left: "medium", right: "medium", bottom: "medium"}}>
         <Heading level={1} margin="none">
           <Link style={{color: 'inherit'}} to={postPath({post})}>
             {post.title}
           </Link>
         </Heading>
-
-        {authors.length > 0 ? (
-          <Box direction="row" gap="medium">
-            {authors.map((node, i) =>
-              node ? (
-                <Box
-                  key={node.id}
-                  align="center"
-                  direction="row"
-                  margin={{vertical: 'medium'}}>
-                  <a href={node.url}>
-                    <Box>
-                      <img
-                        alt={node.name}
-                        src={imageUrl({src: node.avatarUrl})}
-                        style={{
-                          width: 48,
-                          height: 48,
-                          borderRadius: '50%',
-                          marginRight: 8,
-                        }}
-                      />
-                    </Box>
-                  </a>
-                  <Box>
-                    {
-                      // TODO(stopachka)
-                      // Currently linking to twitter for now. 
-                      // May be good to expand this ability to other authors later
-                      node.login === 'stopachka' 
-                        ? <a href={`https://twitter.com/${node.login}`} target="_blank">
-                            <Text size="small">{node.name || node.login}</Text>
-                          </a>
-                        : <a href={node.url} target="_blank">
-                            <Text size="small">{node.name || node.login}</Text>
-                          </a>
-                    }
-                    <Text
-                      size="xsmall"
-                      style={{visibility: i === 0 ? 'visible' : 'hidden'}}>
-                      {formatDate(postDate, 'MMM do, yyyy')}
-                    </Text>
-                  </Box>
-                </Box>
-              ) : null,
-            )}
-          </Box>
-        ) : null}
         <Box direction="row" justify="between"></Box>
         <Text>
           <MarkdownRenderer escapeHtml={true} source={post.body} />
         </Text>
       </Box>
-      <ReactionBar
-        relay={relay}
-        subjectId={post.id}
-        reactionGroups={post.reactionGroups}
-      />
+        <ReactionBar
+          relay={relay}
+          subjectId={post.id}
+          reactionGroups={post.reactionGroups}
+        />
     </PostBox>
   );
 };

@@ -100,7 +100,7 @@ function Header({gitHub, adminLinks}) {
   return (
     <>
       <Box margin="medium" style={{position: 'absolute', top: 0, right: 0}}>
-        <Avatar gitHub={gitHub} adminLinks={adminLinks} />
+        <a href="https://twitter.com/stopachka" target="_blank">Twitter</a>
       </Box>
       <PostBox>
         <Box
