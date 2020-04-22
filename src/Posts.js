@@ -91,7 +91,7 @@ export default createPaginationContainer(
     repository: graphql`
       fragment Posts_repository on GitHubRepository
         @argumentDefinitions(
-          count: {type: "Int", defaultValue: 30}
+          count: {type: "Int", defaultValue: 60}
           cursor: {type: "String"}
           orderBy: {
             type: "GitHubIssueOrder"
