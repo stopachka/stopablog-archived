@@ -460,11 +460,11 @@ export const Post = ({relay, post, context}: Props) => {
   return (
     <PostBox>
       <Box pad={{left: "medium", right: "medium", bottom: "medium"}}>
-        <Heading level={1} margin="none">
+        <h1 style={{fontWeight: '500'}}>
           <Link style={{color: 'inherit'}} to={postPath({post})}>
             {post.title}
           </Link>
-        </Heading>
+        </h1>
         <Box direction="row" justify="between"></Box>
         <Text>
           <MarkdownRenderer escapeHtml={true} source={post.body} />

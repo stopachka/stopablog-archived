@@ -50,7 +50,7 @@ import type {App_PostQueryResponse} from './__generated__/App_PostQuery.graphql'
 import type {Environment} from 'relay-runtime';
 import type {RelayNetworkError} from 'react-relay';
 
-const SANS_SERIF_FAM = '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans" sans-serif';
+const SANS_SERIF_FAM = 'Helvetica Neue, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Open Sans, sans-serif';
 export const theme = deepMerge(generate(24, 10), {
   global: {
     colors: {
@@ -96,40 +96,27 @@ export const theme = deepMerge(generate(24, 10), {
   },
 });
 
-function Header({gitHub, adminLinks}) {
+function Header() {
   return (
     <>
-      <Box margin="medium" style={{position: 'absolute', top: 0, right: 0}}>
-        <a href="https://twitter.com/stopachka" target="_blank">Twitter</a>
-      </Box>
-      <PostBox>
-        <Box
-          pad={{horizontal: 'medium'}}
-          border={{
-            size: 'xsmall',
-            side: 'bottom',
-            color: 'rgba(0,0,0,0.1)',
-          }}>
-          <Heading style={{
-            marginTop: 0,
-            fontFamily: SANS_SERIF_FAM
-            }} level={3}>
-            <Link
-              getProps={({isCurrent}) => ({
-                style: isCurrent
-                  ? {
-                      textDecoration: 'none',
-                      color: 'inherit',
-                      cursor: 'auto',
-                    }
-                  : {color: 'inherit'},
-              })}
-              to="/">
-              {config.title || 'OneBlog'}
-            </Link>
-          </Heading>
-        </Box>
-      </PostBox>
+    <header 
+      className="app-header-container"
+      style={{
+        display: 'flex',
+        width: '100%',
+        alignItems: 'baseline',
+        padding: '20px'
+      }}>
+      <h4
+        className="app-header-title"
+        style={{fontWeight: 500, paddingRight: '10px', margin: 0}}
+      >
+        <Link to={'/'} style={{color: 'inherit'}}>
+          Stepan Parunashvili
+        </Link>
+      </h4>
+      <a href="https://twitter.com/stopachka" target="_blank">Twitter</a>
+    </header>
     </>
   );
 }
@@ -221,8 +208,12 @@ function PostsRoot({preloadedQuery}: {preloadedQuery: any}) {
           <meta property="og:locale" content="en_US" />
           <link rel="me" href="https://twitter.com/stopachka" />
         </Helmet>
-        <Header gitHub={data.gitHub} adminLinks={[]} />
-        <Posts repository={respository} />
+        <div
+          className="app-root"
+          >
+          <Header />
+          <Posts repository={respository} />
+        </div>
       </>
     );
   }
@@ -308,8 +299,10 @@ function PostRoot({preloadedQuery}: {preloadedQuery: any}) {
             },
           ]}
         />
-        <Post context="details" post={post} />
-        <Comments post={post} postId={post.id} viewer={data?.gitHub?.viewer} />
+        <div className="layout">
+          <Post context="details" post={post} />
+          <Comments post={post} postId={post.id} viewer={data?.gitHub?.viewer} />
+        </div>
       </>
     );
   }
@@ -325,7 +318,6 @@ const Route = React.memo(function Route({
   const {loginStatus} = React.useContext(UserContext);
   return (
     <div style={{position: 'relative'}}>
-      <div className="layout">
         <ErrorBoundary>
           <React.Suspense fallback={null}>
             <routeConfig.component
@@ -337,7 +329,6 @@ const Route = React.memo(function Route({
             />
           </React.Suspense>
         </ErrorBoundary>
-      </div>
     </div>
   );
 });

@@ -3,7 +3,7 @@
 import React from 'react';
 import graphql from 'babel-plugin-relay/macro';
 import {createPaginationContainer, type RelayProp} from 'react-relay';
-import Post from './Post';
+import Link from './PreloadLink';
 import type {Posts_repository} from './__generated__/Posts_repository.graphql';
 import LoadingSpinner from './loadingSpinner';
 import {Box} from 'grommet/components/Box';
@@ -50,7 +50,19 @@ const Posts = ({relay, repository}: Props) => {
     <Box>
       {issues.map((e, i) =>
         e && e.node ? (
-          <Post key={e.node.id} context="list" post={e.node} />
+          <div className="post">
+            <h4
+            style={{
+              padding: '0 20px',
+              paddingBottom: '20px',
+              fontWeight: 500,
+              margin: 0,
+            }}>
+              <Link style={{textDecoration: 'underline', }} to={`/post/${e.node.number}`}>
+                {e.node.title}
+              </Link>
+            </h4>
+          </div>
         ) : null,
       )}
       {isLoading ? (
@@ -74,7 +86,7 @@ export default createPaginationContainer(
     repository: graphql`
       fragment Posts_repository on GitHubRepository
         @argumentDefinitions(
-          count: {type: "Int", defaultValue: 10}
+          count: {type: "Int", defaultValue: 30}
           cursor: {type: "String"}
           orderBy: {
             type: "GitHubIssueOrder"
@@ -90,7 +102,8 @@ export default createPaginationContainer(
           edges {
             node {
               id
-              ...Post_post
+              title
+              number
             }
           }
         }
