@@ -48,23 +48,28 @@ const Posts = ({relay, repository}: Props) => {
   return (
     <>
     <Box>
-      {issues.map((e, i) =>
-        e && e.node ? (
-          <div className="post">
-            <h4
-            style={{
-              padding: '0 20px',
-              paddingBottom: '20px',
-              fontWeight: 500,
-              margin: 0,
-            }}>
-              <Link style={{textDecoration: 'underline', }} to={`/post/${e.node.number}`}>
-                {e.node.title}
-              </Link>
-            </h4>
-          </div>
-        ) : null,
-      )}
+      {
+        issues
+          .map(e => e && e.node)
+          .filter(x => x)
+          .map(post => {
+            return (
+              <div className="post">
+                <h4
+                style={{
+                  padding: '0 20px',
+                  paddingBottom: '20px',
+                  fontWeight: '500',
+                  margin: 0,
+                }}>
+                  <Link style={{textDecoration: 'underline', }} to={`/post/${post.number}`}>
+                    {post.title}
+                  </Link>
+                </h4>
+              </div>
+            )
+          })
+      } 
       {isLoading ? (
         <Box
           align="center"

@@ -1,6 +1,9 @@
 * {
   box-sizing: border-box;
 }
+h1, h2, h3, h4 {
+  line-height: 1.2;
+}
 .add-reaction-emoji {
   fill: rgb(88, 96, 105);
   stroke: rgb(88, 96, 105);
