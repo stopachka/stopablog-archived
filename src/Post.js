@@ -20,7 +20,6 @@ import {postRoute} from './App';
 import GitHubLoginButton from './GitHubLoginButton';
 import {NotificationContext} from './Notifications';
 import {Box} from 'grommet/components/Box';
-import {Heading} from 'grommet/components/Heading';
 import {Text} from 'grommet/components/Text';
 import UserContext from './UserContext';
 import {lowerCase} from 'lower-case';

@@ -211,7 +211,6 @@ function PostsRoot({preloadedQuery}: {preloadedQuery: any}) {
         <div
           className="app-root"
           >
-          <Header />
           <Posts repository={respository} />
         </div>
       </>
@@ -289,16 +288,6 @@ function PostRoot({preloadedQuery}: {preloadedQuery: any}) {
           <meta property="article:author" content="Stepan Parunashvili" />
           <link rel="me" href="https://twitter.com/stopachka" />
         </Helmet>
-        <Header
-          gitHub={data.gitHub}
-          adminLinks={[
-            {
-              label: 'Edit post',
-              href: editIssueUrl({issueNumber: post.number}),
-              icon: <Github size="16px" />,
-            },
-          ]}
-        />
         <div className="layout">
           <Post context="details" post={post} />
           <Comments post={post} postId={post.id} viewer={data?.gitHub?.viewer} />
@@ -318,6 +307,7 @@ const Route = React.memo(function Route({
   const {loginStatus} = React.useContext(UserContext);
   return (
     <div style={{position: 'relative'}}>
+        <Header />
         <ErrorBoundary>
           <React.Suspense fallback={null}>
             <routeConfig.component
