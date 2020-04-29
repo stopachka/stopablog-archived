@@ -459,7 +459,7 @@ export const Post = ({relay, post, context}: Props) => {
   return (
     <PostBox>
       <Box pad={{left: "medium", right: "medium", bottom: "medium"}}>
-        <h1 style={{fontWeight: '500'}}>
+        <h1>
           <Link style={{color: 'inherit'}} to={postPath({post})}>
             {post.title}
           </Link>

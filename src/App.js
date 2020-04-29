@@ -50,7 +50,7 @@ import type {App_PostQueryResponse} from './__generated__/App_PostQuery.graphql'
 import type {Environment} from 'relay-runtime';
 import type {RelayNetworkError} from 'react-relay';
 
-const SANS_SERIF_FAM = 'Helvetica Neue, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Open Sans, sans-serif';
+const FONT_FAM = '"Spectral", Helvetica Neue, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Open Sans, sans-serif';
 export const theme = deepMerge(generate(24, 10), {
   global: {
     colors: {
@@ -59,13 +59,13 @@ export const theme = deepMerge(generate(24, 10), {
       focus: 'rgba(60, 199, 183, 0.75)',
     },
     font: {
-      family: SANS_SERIF_FAM
+      family: FONT_FAM
     },
   },
   heading: {
     font: {
-      family: SANS_SERIF_FAM,
-      fontWeight: 500
+      family: FONT_FAM,
+      // fontWeight: 500
     }
   },
   paragraph: {
@@ -109,7 +109,7 @@ function Header() {
       }}>
       <h4
         className="app-header-title"
-        style={{fontWeight: 500, paddingRight: '10px', margin: 0}}
+        style={{paddingRight: '10px', margin: 0}}
       >
         <Link to={'/'} style={{color: 'inherit'}}>
           Stepan Parunashvili
