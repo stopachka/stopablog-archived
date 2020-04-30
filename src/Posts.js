@@ -5,8 +5,8 @@ import graphql from 'babel-plugin-relay/macro';
 import {createPaginationContainer, type RelayProp} from 'react-relay';
 import Link from './PreloadLink';
 import type {Posts_repository} from './__generated__/Posts_repository.graphql';
-import LoadingSpinner from './loadingSpinner';
 import {Box} from 'grommet/components/Box';
+import { Heading } from 'grommet/components/Heading';
 
 type Props = {|
   relay: RelayProp,
@@ -70,14 +70,10 @@ const Posts = ({relay, repository}: Props) => {
             )
           })
       } 
-      {isLoading ? (
+      {true ? (
         <Box
-          align="center"
-          margin="medium"
-          style={{
-            maxWidth: 704,
-          }}>
-          <LoadingSpinner width="48px" height="48px" />
+          margin={{left: "medium"}}>
+          <Heading level={4} style={{fontWeight: "normal"}}><em>Loading...</em></Heading>
         </Box>
       ) : null}
     </Box>

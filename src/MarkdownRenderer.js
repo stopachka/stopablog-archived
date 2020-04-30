@@ -40,7 +40,7 @@ class CodeBlock extends React.PureComponent<
       ? null
       : Promise.all([
           import('react-syntax-highlighter/dist/esm/light'),
-          import('react-syntax-highlighter/dist/esm/styles/hljs/github'),
+          import('react-syntax-highlighter/dist/esm/styles/hljs/solarized-dark'),
           importLanguage(this.props.language),
         ])
           .then(
@@ -57,7 +57,7 @@ class CodeBlock extends React.PureComponent<
               }
               this.setState({
                 SyntaxHighlighter: props => (
-                  <SyntaxHighlighter style={style} {...props} />
+                    <SyntaxHighlighter style={style} {...props} customStyle={{borderRadius: '5px'}} />
                 ),
               });
             },
@@ -238,7 +238,7 @@ const defaultRenderers = ({SyntaxHighlighter}) => ({
      * NOTE(stopachka) 
      * Because this content is inside of a post, the highest heading level should be H2
     */
-    return <Heading {...props} level={props.level + 1} />
+    return <Heading {...props} level={props.level} />
   },
   link: Link,
   linkReference(props) {
