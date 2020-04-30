@@ -290,7 +290,12 @@ function PostRoot({preloadedQuery}: {preloadedQuery: any}) {
         </Helmet>
         <div className="layout">
           <Post context="details" post={post} />
-          <Comments post={post} postId={post.id} viewer={data?.gitHub?.viewer} />
+          <hr />
+          <Box align="center">
+            <Heading level={4} style={{fontWeight: 'normal'}}><em>
+              Thoughts? Reach out to me via <a href="https://twitter.com/stopachka" target="_blank">twitter</a> or email : )
+            </em></Heading>
+          </Box>
         </div>
       </>
     );

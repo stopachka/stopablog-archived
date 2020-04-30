@@ -458,6 +458,14 @@ export const Post = ({relay, post, context}: Props) => {
   const authors = post.assignees.nodes || [];
   return (
     <PostBox>
+      {
+        localStorage.getItem('show_gh_link') 
+          ? <a
+              style={{position: 'absolute', right: 10, top: 10}} 
+              target="_blank"
+              href={`https://github.com/stopachka/stopablog/issues/${post.number}`}>GH {post.number}</a>
+          : null
+      }
       <Box pad={{left: "medium", right: "medium", bottom: "medium"}}>
         <h1>
           <Link style={{color: 'inherit'}} to={postPath({post})}>
@@ -469,11 +477,6 @@ export const Post = ({relay, post, context}: Props) => {
           <MarkdownRenderer escapeHtml={true} source={post.body} />
         </Text>
       </Box>
-        <ReactionBar
-          relay={relay}
-          subjectId={post.id}
-          reactionGroups={post.reactionGroups}
-        />
     </PostBox>
   );
 };

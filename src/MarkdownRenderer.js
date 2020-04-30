@@ -40,7 +40,7 @@ class CodeBlock extends React.PureComponent<
       ? null
       : Promise.all([
           import('react-syntax-highlighter/dist/esm/light'),
-          import('react-syntax-highlighter/dist/esm/styles/hljs/solarized-dark'),
+          import('react-syntax-highlighter/dist/esm/styles/hljs/tomorrow-night-blue'),
           importLanguage(this.props.language),
         ])
           .then(
