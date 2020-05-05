@@ -59,7 +59,7 @@ const Posts = ({relay, repository}: Props) => {
                 style={{
                   padding: '0 20px',
                   paddingBottom: '20px',
-                  fontWeight: '500',
+                  fontWeight: 'normal',
                   margin: 0,
                 }}>
                   <Link style={{textDecoration: 'underline', }} to={`/post/${post.number}`}>

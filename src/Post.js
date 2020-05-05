@@ -226,7 +226,6 @@ type Props = {
 export function PostBox({children}: {children: React.Node}) {
   return (
     <Box
-      pad="medium"
       style={{
         maxWidth: 704,
         width: '100%',
@@ -459,7 +458,7 @@ export const Post = ({relay, post, context}: Props) => {
   return (
     <PostBox>
       {
-        localStorage.getItem('show_gh_link') 
+        window && window.localStorage.getItem('show_gh_link') 
           ? <a
               style={{position: 'absolute', right: 10, top: 10}} 
               target="_blank"

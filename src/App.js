@@ -109,13 +109,13 @@ function Header() {
       }}>
       <h4
         className="app-header-title"
-        style={{paddingRight: '10px', margin: 0}}
+        style={{paddingRight: '10px', margin: 0, fontWeight: 500}}
       >
         <Link to={'/'} style={{color: 'inherit'}}>
           Stepan Parunashvili
         </Link>
+        <a style={{paddingLeft: '1em'}} href="https://twitter.com/stopachka" target="_blank">Twitter</a>
       </h4>
-      <a href="https://twitter.com/stopachka" target="_blank">Twitter</a>
     </header>
     </>
   );
