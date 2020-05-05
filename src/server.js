@@ -119,7 +119,7 @@ function getMediumId(req) {
   return null;
 }
 
-async function findMediumRedirect(req): Promise<?number> {
+async function findMediumRedirect(req) {
   const mediumId = getMediumId(req);
   if (mediumId) {
     try {
@@ -139,7 +139,7 @@ async function findMediumRedirect(req): Promise<?number> {
 
 const SUPPORTED_FEED_EXTENSIONS = ['rss', 'atom', 'json'];
 
-function createApp(basePath: ?string) {
+function createApp(basePath) {
   const appRouter = express.Router();
   appRouter
     .get('/image/:base64Url', imageProxy)
