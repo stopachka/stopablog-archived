@@ -106,7 +106,7 @@ export async function buildFeed({
     id: baseUrl,
     link: baseUrl,
     language: 'en',
-    image: `${baseUrl}/logo.png`,
+    image: `${baseUrl}/favicon-32x32.png`,
     favicon: `${baseUrl}/favicon.ico`,
     updated: latestPost ? computePostDate(latestPost) : null,
     generator: '',
