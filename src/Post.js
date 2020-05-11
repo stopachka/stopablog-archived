@@ -458,7 +458,7 @@ export const Post = ({relay, post, context}: Props) => {
   return (
     <PostBox>
       {
-        window && window.localStorage.getItem('show_gh_link') 
+        localStorage && localStorage.getItem('show_gh_link') 
           ? <a
               style={{position: 'absolute', right: 10, top: 10}} 
               target="_blank"
