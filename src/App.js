@@ -290,11 +290,13 @@ function PostRoot({preloadedQuery}: {preloadedQuery: any}) {
         </Helmet>
         <div className="layout">
           <Post context="details" post={post} />
-          <hr />
+          <hr color="lightgrey" />
           <Box align="center">
-            <Heading level={4} style={{fontWeight: 'normal'}}><em>
-              Thoughts? Reach out to me via <a href="https://twitter.com/stopachka" target="_blank">twitter</a> or email : )
-            </em></Heading>
+            <Heading level={4} style={{fontWeight: 'normal', color: 'rgb(37, 37, 37)'}}>
+              <em>
+                Thoughts? Reach out to me via <a href="https://twitter.com/stopachka" target="_blank">twitter</a> or email : )
+              </em>
+            </Heading>
           </Box>
         </div>
       </>
