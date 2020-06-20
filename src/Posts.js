@@ -54,7 +54,7 @@ const Posts = ({relay, repository}: Props) => {
           .filter(x => x)
           .map(post => {
             return (
-              <div className="post">
+              <div key={post.number} className="post">
                 <h4
                 style={{
                   padding: '0 20px',
@@ -70,7 +70,7 @@ const Posts = ({relay, repository}: Props) => {
             )
           })
       } 
-      {true ? (
+      {isLoading ? (
         <Box
           margin={{left: "medium"}}>
           <Heading level={4} style={{fontWeight: "normal"}}><em>Loading...</em></Heading>
