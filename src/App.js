@@ -60,19 +60,19 @@ export const theme = deepMerge(generate(24, 10), {
       focus: 'rgba(60, 199, 183, 0.75)',
     },
     font: {
-      family: FONT_FAM
+      family: FONT_FAM,
     },
   },
   heading: {
     font: {
       family: FONT_FAM,
-    }
+    },
   },
   paragraph: {
     medium: {
       size: '1.1em',
-      height: '1.6'
-    }
+      height: '1.6',
+    },
   },
   anchor: {
     fontWeight: 'normal',
@@ -99,24 +99,28 @@ export const theme = deepMerge(generate(24, 10), {
 function Header() {
   return (
     <>
-    <header 
-      className="app-header-container"
-      style={{
-        display: 'flex',
-        width: '100%',
-        alignItems: 'baseline',
-        padding: '20px'
-      }}>
-      <h4
-        className="app-header-title"
-        style={{paddingRight: '10px', margin: 0, fontWeight: 500}}
-      >
-        <Link to={'/'} style={{color: 'inherit'}}>
-          Stepan Parunashvili
-        </Link>
-        <a style={{paddingLeft: '1em'}} href="https://twitter.com/stopachka" target="_blank">Twitter</a>
-      </h4>
-    </header>
+      <header
+        className="app-header-container"
+        style={{
+          display: 'flex',
+          width: '100%',
+          alignItems: 'baseline',
+          padding: '20px',
+        }}>
+        <h4
+          className="app-header-title"
+          style={{paddingRight: '10px', margin: 0, fontWeight: 500}}>
+          <Link to={'/'} style={{color: 'inherit'}}>
+            Stepan Parunashvili
+          </Link>
+          <a
+            style={{paddingLeft: '1em'}}
+            href="https://twitter.com/stopachka"
+            target="_blank">
+            Twitter
+          </a>
+        </h4>
+      </header>
     </>
   );
 }
@@ -200,17 +204,21 @@ function PostsRoot({preloadedQuery}: {preloadedQuery: any}) {
     return (
       <>
         <Helmet>
-          <meta name="description" content="Read essays by Stepan Parunashvili." />
-          <meta property="og:description" content="Read essays by Stepan Parunashvili" />
+          <meta
+            name="description"
+            content="Read essays by Stepan Parunashvili."
+          />
+          <meta
+            property="og:description"
+            content="Read essays by Stepan Parunashvili"
+          />
           <meta property="og:title" content="Stepan Parunashvili" />
           <meta property="og:site_name" content="Stepan Parunashvili" />
           <meta property="og:type" content="website" />
           <meta property="og:locale" content="en_US" />
           <link rel="me" href="https://twitter.com/stopachka" />
         </Helmet>
-        <div
-          className="app-root"
-          >
+        <div className="app-root">
           <Posts repository={respository} />
         </div>
       </>
@@ -291,13 +299,18 @@ function PostRoot({preloadedQuery}: {preloadedQuery: any}) {
         <div className="layout">
           <Post context="details" post={post} />
           <hr color="lightgrey" />
-          <Box align="center">
-            <Heading level={4} style={{fontWeight: 'normal', color: 'rgb(37, 37, 37)'}}>
-              <em>
-                Thoughts? Reach out to me via <a href="https://twitter.com/stopachka" target="_blank">twitter</a> or email : )
-              </em>
-            </Heading>
-          </Box>
+          <Heading
+            level={4}
+            style={{fontWeight: 'normal', color: 'rgb(37, 37, 37)', textAlign: 'center', maxWidth: 'none'}}>
+            <em>
+              If you liked this, follow me on{' '}
+              <a href="https://twitter.com/stopachka" target="_blank">
+                twitter
+              </a>{' '}
+              -- anytime I have an essay I'll post it there. If you have
+              thoughts, feel free to reach out over email :)
+            </em>
+          </Heading>  
         </div>
       </>
     );
@@ -314,18 +327,18 @@ const Route = React.memo(function Route({
   const {loginStatus} = React.useContext(UserContext);
   return (
     <div style={{position: 'relative'}}>
-        <Header />
-        <ErrorBoundary>
-          <React.Suspense fallback={null}>
-            <routeConfig.component
-              key={loginStatus === 'logged-in' ? 'logged-in' : 'logged-out'}
-              preloadedQuery={routeConfig.preload(cache, environment, {
-                ...props,
-                notificationContext,
-              })}
-            />
-          </React.Suspense>
-        </ErrorBoundary>
+      <Header />
+      <ErrorBoundary>
+        <React.Suspense fallback={null}>
+          <routeConfig.component
+            key={loginStatus === 'logged-in' ? 'logged-in' : 'logged-out'}
+            preloadedQuery={routeConfig.preload(cache, environment, {
+              ...props,
+              notificationContext,
+            })}
+          />
+        </React.Suspense>
+      </ErrorBoundary>
     </div>
   );
 });
