@@ -5,18 +5,17 @@ import graphql from 'babel-plugin-relay/macro';
 import {
   createFragmentContainer,
   commitMutation,
-  fetchQuery,
   type RelayProp,
 } from 'react-relay';
+import {loadQuery} from 'react-relay/hooks';
 import {useRelayEnvironment} from 'react-relay/hooks';
 import MarkdownRenderer from './MarkdownRenderer';
 import formatDate from 'date-fns/format';
 import EmojiIcon from './emojiIcon';
 import AddIcon from './addIcon';
 import Tippy, {TippyGroup} from '@tippy.js/react';
-import 'tippy.js/themes/light-border.css';
-import Link from './PreloadLink';
-import {postRoute} from './App';
+// import 'tippy.js/themes/light-border.css';
+import Link from 'next/link';
 import GitHubLoginButton from './GitHubLoginButton';
 import {NotificationContext} from './Notifications';
 import {Box} from 'grommet/components/Box';
@@ -27,8 +26,8 @@ import {sentenceCase} from 'sentence-case';
 import unified from 'unified';
 import parse from 'remark-parse';
 import imageUrl from './imageUrl';
-import {Helmet} from 'react-helmet';
-import PreloadCacheContext from './PreloadCacheContext';
+import {query as postRootQuery} from './PostRoot';
+import {query as postsRootQuery} from './PostsRoot';
 
 import type {Post_post} from './__generated__/Post_post.graphql';
 
@@ -88,12 +87,17 @@ const removeReactionMutation = graphql`
 function reactionUpdater({store, viewerHasReacted, subjectId, content}) {
   const reactionGroup = store
     .get(subjectId)
-    .getLinkedRecords('reactionGroups')
-    .find(r => r.getValue('content') === content);
-  reactionGroup.setValue(viewerHasReacted, 'viewerHasReacted');
-  const users = reactionGroup.getLinkedRecord('users', {first: 11});
-  users.setValue(
-    Math.max(0, users.getValue('totalCount') + (viewerHasReacted ? 1 : -1)),
+    ?.getLinkedRecords('reactionGroups')
+    ?.find(r => r?.getValue('content') === content);
+
+  reactionGroup?.setValue(viewerHasReacted, 'viewerHasReacted');
+  const users = reactionGroup?.getLinkedRecord('users', {first: 11});
+  users?.setValue(
+    Math.max(
+      0,
+      // $FlowFixMe
+      (users?.getValue('totalCount') ?? 0) + (viewerHasReacted ? 1 : -1),
+    ),
     'totalCount',
   );
 }
@@ -199,7 +203,9 @@ const EmojiPicker = ({
   };
   return (
     <>
-      <Text size="xsmall" style={{textAlign: 'left', margin: '5px 0 0'}}>Pick your reaction</Text>
+      <Text size="xsmall" style={{textAlign: 'left', margin: '5px 0 0'}}>
+        Pick your reaction
+      </Text>
       <div style={{height: 1, background: '#ddd', margin: '5px 0'}} />
       {isLoggedIn ? (
         <>
@@ -373,12 +379,12 @@ export const ReactionBar = ({
   );
 };
 
-function slugify(s: string): string {
+export function slugify(s: string): string {
   return lowerCase(s)
     .replace(/\s+/g, '-') // Replace spaces with -
     .replace(/&/g, '-and-') // Replace & with 'and'
-    .replace(/[^\w\-]+/g, '') // Remove all non-word characters
-    .replace(/\-\-+/g, '-') // Replace multiple - with single -
+    .replace(/[^\w-]+/g, '') // Remove all non-word characters
+    .replace(/--+/g, '-') // Replace multiple - with single -
     .trimStart() // Trim from start of text
     .trimEnd(); // Trim from end of text
 }
@@ -394,9 +400,7 @@ export function postPath({
   },
   viewComments?: boolean,
 }) {
-  return `/post/${post.number}${
-    viewComments ? '#comments' : ''
-  }`;
+  return `/post/${post.number}${viewComments ? '#comments' : ''}`;
 }
 
 const markdownParser = unified().use(parse);
@@ -438,31 +442,41 @@ export function computePostDate(post: {
 
 export const Post = ({relay, post, context}: Props) => {
   const environment = useRelayEnvironment();
-  const cache = React.useContext(PreloadCacheContext);
+  const postDate = React.useMemo(() => computePostDate(post), [post]);
+  const number = post.number;
+
+  // Primitive preloading.
+  // Ideally, we would be able to replace nextjs' preloading logic with our own
+  // We like getStaticProps for SSR, but it's more efficient to fetch directly
+  // from OneGraph once the client-side code is loaded, esp. when logged in
   React.useEffect(() => {
     if (context === 'list') {
-      postRoute.preload(cache, environment, {issueNumber: post.number});
+      loadQuery.loadQuery(
+        environment,
+        postRootQuery,
+        {issueNumber: number},
+        {fetchPolicy: 'store-or-network'},
+      );
+    } else if (context === 'details') {
+      loadQuery.loadQuery(
+        environment,
+        postsRootQuery,
+        {},
+        {fetchPolicy: 'store-or-network'},
+      );
     }
-  }, [cache, environment, context]);
-  const {error: notifyError} = React.useContext(NotificationContext);
-  const [showReactionPopover, setShowReactionPopover] = React.useState(false);
-  const postDate = React.useMemo(() => computePostDate(post), [post]);
-  const popoverInstance = React.useRef();
-  const {loginStatus, login} = React.useContext(UserContext);
-  const isLoggedIn = loginStatus === 'logged-in';
+  }, [environment, context, number]);
 
-  const usedReactions = (post.reactionGroups || []).filter(
-    g => g.users.totalCount > 0,
-  );
   const authors = post.assignees.nodes || [];
   return (
     <PostBox>
-      <Box pad={{left: "medium", right: "medium", bottom: "medium"}}>
+      <Box pad={{left: 'medium', right: 'medium', bottom: 'medium'}}>
         <h1>
-          <Link style={{color: 'inherit'}} to={postPath({post})}>
-            {post.title}
+          <Link href="/post/[...slug]" as={postPath({post})} shallow={true}>
+            <a style={{color: 'inherit'}}>{post.title}</a>
           </Link>
         </h1>
+
         <Box direction="row" justify="between"></Box>
         <Text>
           <MarkdownRenderer escapeHtml={true} source={post.body} />

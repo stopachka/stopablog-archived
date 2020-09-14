@@ -5,34 +5,30 @@ import graphql from 'babel-plugin-relay/macro';
 import {
   commitMutation,
   createPaginationContainer,
-  type RelayProp,
+  type RelayPaginationProp,
 } from 'react-relay';
 import {useRelayEnvironment} from 'react-relay/hooks';
 import {ConnectionHandler} from 'relay-runtime';
-import {PostBox, ReactionBar} from './Post';
+import {PostBox} from './Post';
 import type {Comments_post} from './__generated__/Comments_post.graphql';
-import LoadingSpinner from './loadingSpinner';
 import MarkdownRenderer from './MarkdownRenderer';
 import {Box} from 'grommet/components/Box';
-import {Heading} from 'grommet/components/Heading';
 import {Text} from 'grommet/components/Text';
 import {TextArea} from 'grommet/components/TextArea';
 import {Tabs} from 'grommet/components/Tabs';
 import {Tab} from 'grommet/components/Tab';
 import {Button} from 'grommet/components/Button';
 import {Stack} from 'grommet/components/Stack';
-import format from 'date-fns/format';
-import formatDistance from 'date-fns/formatDistance';
 import Comment from './Comment';
 import {NotificationContext} from './Notifications';
 import UserContext from './UserContext';
 import GitHubLoginButton from './GitHubLoginButton';
 
 type Props = {
-  relay: RelayProp,
+  relay: RelayPaginationProp,
   post: Comments_post,
   postId: string,
-  viewer: {login: string, name: string, avatarUrl: string, url: string},
+  viewer: {+login: string, +name: ?string, +avatarUrl: string, +url: string},
 };
 
 // n.b. no accessToken in the persistedQueryConfiguration for this mutation,
@@ -60,7 +56,7 @@ function CommentInput({
   viewer,
 }: {
   postId: string,
-  viewer: {login: string, avatarUrl: string, name: string, url: string},
+  viewer: {+login: string, +name: ?string, +avatarUrl: string, +url: string},
 }) {
   const environment = useRelayEnvironment();
   const {error: notifyError} = React.useContext(NotificationContext);
@@ -78,18 +74,21 @@ function CommentInput({
         data.gitHub.addComment.commentEdge.node.__id,
       );
       const post = store.get(postId);
-      const ch = ConnectionHandler;
-      const comments = ConnectionHandler.getConnection(
-        post,
-        'Comments_post_comments',
-      );
-      const edge = ConnectionHandler.createEdge(
-        store,
-        comments,
-        newComment,
-        'GitHubIssueComment',
-      );
-      ConnectionHandler.insertEdgeAfter(comments, edge);
+      if (newComment && post) {
+        const comments = ConnectionHandler.getConnection(
+          post,
+          'Comments_post_comments',
+        );
+        if (comments) {
+          const edge = ConnectionHandler.createEdge(
+            store,
+            comments,
+            newComment,
+            'GitHubIssueComment',
+          );
+          ConnectionHandler.insertEdgeAfter(comments, edge);
+        }
+      }
     };
     commitMutation(environment, {
       mutation: addCommentMutation,
@@ -104,6 +103,7 @@ function CommentInput({
         setComment('');
       },
       onError: err => {
+        console.error('Error saving commeent', err);
         notifyError('Error saving comment. Please try again.');
         setSaving(false);
       },
@@ -141,27 +141,29 @@ function CommentInput({
         interactiveChild={isLoggedIn ? 'first' : 'last'}
         anchor="center">
         <Box style={{opacity: isLoggedIn ? 1 : 0.3}}>
-          <Tabs justify="start">
-            <Tab title={<Text size="small">Write</Text>}>
-              <Box pad="small" height="small">
-                <TextArea
-                  disabled={saving}
-                  placeholder="Leave a comment (supports markdown)"
-                  value={comment}
-                  style={{height: '100%', fontWeight: 'normal'}}
-                  onChange={e => setComment(e.target.value)}
-                />
-              </Box>
-            </Tab>
-            <Tab title={<Text size="small">Preview</Text>}>
-              <Box pad="small" height={{min: 'small'}}>
-                <MarkdownRenderer
-                  escapeHtml={true}
-                  source={comment.trim() ? comment : 'Nothing to preview.'}
-                />
-              </Box>
-            </Tab>
-          </Tabs>
+          <Box height={{min: 'small'}}>
+            <Tabs justify="start">
+              <Tab title={<Text size="small">Write</Text>}>
+                <Box pad="small" height="small">
+                  <TextArea
+                    disabled={saving}
+                    placeholder="Leave a comment (supports markdown)"
+                    value={comment}
+                    style={{height: '100%', fontWeight: 'normal'}}
+                    onChange={e => setComment(e.target.value)}
+                  />
+                </Box>
+              </Tab>
+              <Tab title={<Text size="small">Preview</Text>}>
+                <Box pad="small" height={{min: 'small'}}>
+                  <MarkdownRenderer
+                    escapeHtml={true}
+                    source={comment.trim() ? comment : 'Nothing to preview.'}
+                  />
+                </Box>
+              </Tab>
+            </Tabs>
+          </Box>
           <Box>
             <Box pad="small" align="end">
               <Button
