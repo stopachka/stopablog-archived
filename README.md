@@ -45,7 +45,6 @@ In another terminal window, start the relay compiler
 yarn relay --watch
 ```
 
-
 You may need to install [watchman](https://facebook.github.io/watchman/), a file watching service. On mac, do `brew install watchman`. On Windows or Linux, follow the instructions at [https://facebook.github.io/watchman/docs/install.html](https://facebook.github.io/watchman/docs/install.html).
 
 ### Start the server
