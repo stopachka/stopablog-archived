@@ -50,7 +50,7 @@ ConcatFrames.prototype._end = function(done) {
 
 const MAX_REDIRECT_DEPTH = 5;
 
-function getWithRedirect(url, cb, depth = 1) {
+export function getWithRedirect(url, cb, depth = 1) {
   return https.get(url, resp => {
     if (
       resp.statusCode > 300 &&
@@ -82,19 +82,46 @@ function padBase64String(input: string): string {
 function decodeUrl(base64Url) {
   return Buffer.from(
     padBase64String(base64Url)
-      .replace(/\-/g, '+')
+      .replace(/-/g, '+')
       .replace(/_/g, '/'),
     'base64',
   ).toString('utf-8');
 }
 
+function isGitHubUrl(url: string): boolean {
+  const host = new URL(url).host;
+  const parts = host.split('.');
+  return (
+    parts.length >= 2 &&
+    parts[parts.length - 1] === 'com' &&
+    ['github', 'githubusercontent'].includes(parts[parts.length - 2])
+  );
+}
+
+// workaround for netlify (res.redirect is broken)
+function redirect(res, statusOrUrl, url) {
+  if (typeof statusOrUrl === 'string') {
+    url = statusOrUrl;
+    statusOrUrl = 307;
+  }
+  if (typeof statusOrUrl !== 'number' || typeof url !== 'string') {
+    throw new Error(
+      `Invalid redirect arguments. Please use a single argument URL, e.g. res.redirect('/destination') or use a status code and URL, e.g. res.redirect(307, '/destination').`,
+    );
+  }
+  res.writeHead(statusOrUrl, {Location: url});
+  res.end();
+  return res;
+}
+
 export const firstFrame = (req, res) => {
   const url = decodeUrl(req.params.base64Url);
-  // TODO: ensure image comes from github
-  // if (!url.startsWith('https://user-images.githubusercontent.com')) {
-  //   res.sendStatus(400);
-  //   return;
-  // }
+
+  if (!isGitHubUrl(url)) {
+    console.warn('Non-GitHub url, redirecting', url);
+    redirect(res, url);
+    return;
+  }
 
   getWithRedirect(url, resp => {
     const decodePipe = resp.pipe(new GifDecoder());
@@ -116,27 +143,52 @@ export const firstFrame = (req, res) => {
   });
 };
 
-export const imageProxy = (req, res) => {
-  const url = decodeUrl(req.params.base64Url);
+export const proxyImage = (res, url) => {
+  if (!isGitHubUrl(url)) {
+    console.warn('Non-GitHub url, redirecting', url);
+    redirect(res, url);
+    return;
+  }
 
-  getWithRedirect(url, resp => {
-    res.status(resp.statusCode);
-    for (const k of Object.keys(resp.headers)) {
-      const lowerK = k.toLowerCase();
-      if (lowerK === 'content-type' || lowerK === 'content-length') {
-        res.set(k, resp.headers[k]);
+  return new Promise((resolve, reject) => {
+    getWithRedirect(url, resp => {
+      let contentLength;
+      for (const k of Object.keys(resp.headers)) {
+        if (k.toLowerCase() === 'content-length') {
+          contentLength = parseInt(resp.headers[k], 10);
+        }
       }
-    }
-    res.set('Cache-Control', 'public, max-age=2592000, s-maxage=2592000');
-    resp.on('data', chunk => {
-      res.write(chunk);
-    });
+      if (contentLength && contentLength >= 4500000) {
+        // Lambda can't handle anything larger than 5mb, so we'll redirect to the original url instead
+        redirect(res, url);
+      } else {
+        res.status(resp.statusCode);
+        for (const k of Object.keys(resp.headers)) {
+          const lowerK = k.toLowerCase();
+          if (lowerK === 'content-type' || lowerK === 'content-length') {
+            res.set(k, resp.headers[k]);
+          }
+        }
+        res.set('Cache-Control', 'public, max-age=2592000, s-maxage=2592000');
+        resp.on('data', chunk => {
+          res.write(chunk);
+        });
 
-    resp.on('end', () => {
-      res.end();
+        resp.on('end', () => {
+          res.end();
+          resolve();
+        });
+      }
+    }).on('error', err => {
+      res.send('Error');
+      res.status(500);
+      reject(err);
     });
-  }).on('error', err => {
-    res.sendStatus(500);
-    console.log('Error: ' + err.message);
   });
+};
+
+export const imageProxy = async (req, res) => {
+  const url = decodeUrl(req.params.base64Url);
+  await proxyImage(res, url);
+  return;
 };

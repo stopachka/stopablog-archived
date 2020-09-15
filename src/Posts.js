@@ -1,15 +1,17 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 // @flow
 
 import React from 'react';
 import graphql from 'babel-plugin-relay/macro';
-import {createPaginationContainer, type RelayProp} from 'react-relay';
-import Link from './PreloadLink';
+import {createPaginationContainer, type RelayPaginationProp} from 'react-relay';
 import type {Posts_repository} from './__generated__/Posts_repository.graphql';
 import {Box} from 'grommet/components/Box';
-import { Heading } from 'grommet/components/Heading';
+import {Heading} from 'grommet/components/Heading';
+import Link from 'next/link';
+import nullthrows from 'fbjs/lib/nullthrows';
 
 type Props = {|
-  relay: RelayProp,
+  relay: RelayPaginationProp,
   repository: Posts_repository,
 |};
 
@@ -23,7 +25,7 @@ const Posts = ({relay, repository}: Props) => {
       window.requestAnimationFrame(() => {
         scheduledRef.current = false;
         if (
-          window.innerHeight + document.documentElement?.scrollTop >=
+          window.innerHeight + (document.documentElement?.scrollTop ?? 0) >=
           (document.documentElement?.offsetHeight || 0) - 500
         ) {
           if (!isLoading && !relay.isLoading() && relay.hasMore()) {
@@ -47,36 +49,36 @@ const Posts = ({relay, repository}: Props) => {
 
   return (
     <>
-    <Box>
-      {
-        issues
+      <Box>
+        {issues
           .map(e => e && e.node)
           .filter(x => x)
-          .map(post => {
+          .map(node => {
+            const post = nullthrows(node);
             return (
               <div key={post.number} className="post">
                 <h4
-                style={{
-                  padding: '0 20px',
-                  paddingBottom: '20px',
-                  fontWeight: 'normal',
-                  margin: 0,
-                }}>
-                  <Link style={{textDecoration: 'underline', }} to={`/post/${post.number}`}>
-                    {post.title}
+                  style={{
+                    padding: '0 20px',
+                    paddingBottom: '20px',
+                    fontWeight: 'normal',
+                    margin: 0,
+                  }}>
+                  <Link href="/post/[...slug]" as={`/post/${post.number}`}>
+                    <a style={{textDecoration: 'underline'}}>{post.title}</a>
                   </Link>
                 </h4>
               </div>
-            )
-          })
-      } 
-      {isLoading ? (
-        <Box
-          margin={{left: "medium"}}>
-          <Heading level={4} style={{fontWeight: "normal"}}><em>Loading...</em></Heading>
-        </Box>
-      ) : null}
-    </Box>
+            );
+          })}
+        {isLoading ? (
+          <Box margin={{left: 'medium'}}>
+            <Heading level={4} style={{fontWeight: 'normal'}}>
+              <em>Loading...</em>
+            </Heading>
+          </Box>
+        ) : null}
+      </Box>
     </>
   );
 };
