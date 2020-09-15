@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 // @flow
 
 import React from 'react';
@@ -7,6 +8,7 @@ import type {Posts_repository} from './__generated__/Posts_repository.graphql';
 import {Box} from 'grommet/components/Box';
 import {Heading} from 'grommet/components/Heading';
 import Link from 'next/link';
+import nullthrows from 'fbjs/lib/nullthrows';
 
 type Props = {|
   relay: RelayPaginationProp,
@@ -51,7 +53,8 @@ const Posts = ({relay, repository}: Props) => {
         {issues
           .map(e => e && e.node)
           .filter(x => x)
-          .map(post => {
+          .map(node => {
+            const post = nullthrows(node);
             return (
               <div key={post.number} className="post">
                 <h4

@@ -4,23 +4,36 @@ import React from 'react';
 import NextHead from 'next/head';
 import config from './config';
 
-function Head({title, imageUrl}: {title?: ?string, imageUrl?: ?string}) {
-  const titleProp = title ? `${title} - ${config.title}` : config.title;
+function Head() {
   return (
     <NextHead>
       <script
         async
         src="https://www.googletagmanager.com/gtag/js?id=UA-18190537-5"></script>
-      <script>
-        {`window.dataLayer = window.dataLayer || [];
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
 
-         gtag('config', 'UA-18190537-5');`}
-      </script>
-      <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=block" rel="stylesheet" />
+         gtag('config', 'UA-18190537-5');`,
+        }}
+      />
+      <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossOrigin="anonymous"
+      />
+      <link
+        rel="preload"
+        as="style"
+        href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&amp;display=block"
+      />
+      <link
+        href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=block"
+        rel="stylesheet"
+      />
       <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-
       <meta name="description" content="Read essays by Stepan Parunashvili." />
       <meta
         property="og:description"
@@ -59,7 +72,6 @@ function Head({title, imageUrl}: {title?: ?string, imageUrl?: ?string}) {
         title="Atom feed"
         type="application/atom+xml"
       />
-
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <meta name="theme-color" content="#000000" />
     </NextHead>
