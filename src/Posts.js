@@ -9,6 +9,7 @@ import {Box} from 'grommet/components/Box';
 import {Heading} from 'grommet/components/Heading';
 import Link from 'next/link';
 import nullthrows from 'fbjs/lib/nullthrows';
+import detectPassiveEvents from 'detect-passive-events';
 
 type Props = {|
   relay: RelayPaginationProp,
@@ -30,7 +31,7 @@ const Posts = ({relay, repository}: Props) => {
         ) {
           if (!isLoading && !relay.isLoading() && relay.hasMore()) {
             setIsLoading(true);
-            relay.loadMore(10, x => {
+            relay.loadMore(60, x => {
               setIsLoading(false);
             });
           }
@@ -39,7 +40,11 @@ const Posts = ({relay, repository}: Props) => {
     }
   }, [relay, isLoading, setIsLoading]);
   React.useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener(
+      'scroll',
+      handleScroll,
+      detectPassiveEvents.hasSupport ? {passive: true, capture: false} : false,
+    );
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };

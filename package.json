@@ -5,6 +5,7 @@
   "dependencies": {
     "@tippy.js/react": "^2.2.2",
     "date-fns": "2.9.0",
+    "detect-passive-events": "^1.0.5",
     "email-reply-parser": "^1.2.1",
     "feed": "^4.0.0",
     "gif-stream": "^1.1.0",
