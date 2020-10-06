@@ -1,6 +1,8 @@
 .gif-player {
   text-align: center;
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
   cursor: pointer;
   -webkit-user-select: none;

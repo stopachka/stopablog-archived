@@ -1,20 +1,17 @@
 // @flow
 
 import React from 'react';
-import config from '../../config';
-import {fetchQuery} from 'react-relay';
+import {fetchQuery} from 'react-relay/hooks';
 import {useRouter} from 'next/router';
 import {query, PostRoot} from '../../PostRoot';
 import {getStaticPaths as generateStaticPaths} from '../../staticPaths';
 import {createEnvironment} from '../../Environment';
 import DefaultErrorPage from 'next/error';
+import {tokenInfosFromMarkdowns} from '../../lib/codeHighlight';
 
 export async function getStaticProps(context: any) {
-  const slug = context.params.slug;
-  const path = slug[slug.length - 1];
   let issueNumber;
   const issueNumberString = context.params.slug[0];
-
   if (issueNumberString) {
     issueNumber = parseInt(issueNumberString, 10);
   }
@@ -22,16 +19,28 @@ export async function getStaticProps(context: any) {
   if (!issueNumber) {
     return {props: {}};
   }
-  const environment = createEnvironment();
-  await fetchQuery(environment, query, {issueNumber});
+  const markdowns = [];
+  const environment = createEnvironment({
+    registerMarkdown: function (m) {
+      markdowns.push(m);
+    },
+  });
+  await fetchQuery(environment, query, {issueNumber}).toPromise();
+
+  let tokenInfos = {};
+
+  try {
+    tokenInfos = await tokenInfosFromMarkdowns({markdowns});
+  } catch (e) {
+    console.error('Error fetching tokenInfos for highlighting code', e);
+  }
+
   return {
     revalidate: 600,
     props: {
       issueNumber,
-      initialRecords: environment
-        .getStore()
-        .getSource()
-        .toJSON(),
+      initialRecords: environment.getStore().getSource().toJSON(),
+      tokenInfos,
     },
   };
 }
@@ -46,6 +55,7 @@ export async function getStaticPaths() {
 
 const Page = ({issueNumber: staticIssueNumber}: {issueNumber: ?number}) => {
   const {
+    isFallback,
     query: {slug},
   } = useRouter();
 
@@ -53,7 +63,11 @@ const Page = ({issueNumber: staticIssueNumber}: {issueNumber: ?number}) => {
     staticIssueNumber || (slug?.[0] ? parseInt(slug[0], 10) : null);
 
   if (!issueNumber) {
-    return <DefaultErrorPage statusCode={404} />;
+    if (isFallback) {
+      return null;
+    } else {
+      return <DefaultErrorPage statusCode={404} />;
+    }
   }
 
   return <PostRoot issueNumber={issueNumber} />;

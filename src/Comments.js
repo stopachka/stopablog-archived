@@ -36,7 +36,7 @@ type Props = {
 // persisted auth
 const addCommentMutation = graphql`
   mutation Comments_AddCommentMutation($input: GitHubAddCommentInput!)
-    @persistedQueryConfiguration(freeVariables: ["input"]) {
+  @persistedQueryConfiguration(freeVariables: ["input"]) {
     gitHub {
       addComment(input: $input) {
         commentEdge {
@@ -67,6 +67,13 @@ function CommentInput({
   const [comment, setComment] = React.useState('');
   const [saving, setSaving] = React.useState(false);
 
+  const onInputChange = React.useCallback(
+    (e) => {
+      setComment(e.target.value);
+    },
+    [setComment],
+  );
+
   const saveComment = () => {
     setSaving(true);
     const updater = (store, data) => {
@@ -88,6 +95,13 @@ function CommentInput({
           );
           ConnectionHandler.insertEdgeAfter(comments, edge);
         }
+        const count = post.getLinkedRecord('comments')?.getValue('totalCount');
+        if (Number.isInteger(count)) {
+          // $FlowFixMe: count has been checked by isInteger
+          const newCount = count + 1;          
+          // eslint-disable-next-line no-unused-expressions
+          post.getLinkedRecord('comments')?.setValue(newCount, 'totalCount');
+        }
       }
     };
     commitMutation(environment, {
@@ -102,7 +116,7 @@ function CommentInput({
         setSaving(false);
         setComment('');
       },
-      onError: err => {
+      onError: (err) => {
         console.error('Error saving commeent', err);
         notifyError('Error saving comment. Please try again.');
         setSaving(false);
@@ -146,18 +160,19 @@ function CommentInput({
               <Tab title={<Text size="small">Write</Text>}>
                 <Box pad="small" height="small">
                   <TextArea
+                    focusIndicator={false}
                     disabled={saving}
                     placeholder="Leave a comment (supports markdown)"
                     value={comment}
                     style={{height: '100%', fontWeight: 'normal'}}
-                    onChange={e => setComment(e.target.value)}
+                    onChange={onInputChange}
                   />
                 </Box>
               </Tab>
               <Tab title={<Text size="small">Preview</Text>}>
                 <Box pad="small" height={{min: 'small'}}>
                   <MarkdownRenderer
-                    escapeHtml={true}
+                    trustedInput={false}
                     source={comment.trim() ? comment : 'Nothing to preview.'}
                   />
                 </Box>
@@ -193,7 +208,7 @@ function Comments({post, relay, postId, viewer}: Props) {
 
   return (
     <Box id="comments">
-      {comments.map(comment => {
+      {comments.map((comment) => {
         return <Comment key={comment.id} comment={comment} />;
       })}
       <CommentInput viewer={viewer} postId={postId} />
@@ -207,10 +222,10 @@ export default createPaginationContainer(
   {
     post: graphql`
       fragment Comments_post on GitHubIssue
-        @argumentDefinitions(
-          count: {type: "Int", defaultValue: 100}
-          cursor: {type: "String"}
-        ) {
+      @argumentDefinitions(
+        count: {type: "Int", defaultValue: 100}
+        cursor: {type: "String"}
+      ) {
         comments(first: $count, after: $cursor)
           @connection(key: "Comments_post_comments") {
           edges {
@@ -245,12 +260,12 @@ export default createPaginationContainer(
         $repoName: String!
         $repoOwner: String!
       )
-        @persistedQueryConfiguration(
-          accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
-          freeVariables: ["count", "cursor", "issueNumber"]
-          fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
-          cacheSeconds: 300
-        ) {
+      @persistedQueryConfiguration(
+        accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
+        freeVariables: ["count", "cursor", "issueNumber"]
+        fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
+        cacheSeconds: 300
+      ) {
         gitHub {
           repository(name: $repoName, owner: $repoOwner) {
             __typename

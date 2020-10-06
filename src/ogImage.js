@@ -2,11 +2,12 @@
 
 import https from 'https';
 import graphql from 'babel-plugin-relay/macro';
-import {fetchQuery} from 'react-relay';
+import {fetchQuery} from 'react-relay/hooks';
 import {createEnvironment} from './Environment';
 import unified from 'unified';
 import parse from 'remark-parse';
 import {proxyImage} from './imageProxy';
+import Config from './config';
 
 const postQuery = graphql`
   query ogImage_PostQuery(
@@ -14,12 +15,12 @@ const postQuery = graphql`
     $repoName: String!
     $repoOwner: String!
   )
-    @persistedQueryConfiguration(
-      accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
-      fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
-      freeVariables: ["issueNumber"]
-      cacheSeconds: 300
-    ) {
+  @persistedQueryConfiguration(
+    accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
+    fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
+    freeVariables: ["issueNumber"]
+    cacheSeconds: 300
+  ) {
     gitHub {
       repository(name: $repoName, owner: $repoOwner) {
         owner {
@@ -46,7 +47,7 @@ const postQuery = graphql`
 const markdownParser = unified().use(parse);
 
 function imageFromAst(
-  node,
+  node: any,
 ): ?({type: 'url', url: string} | {type: 'code', lang: ?string, code: string}) {
   if (node.type === 'image' && node.url) {
     return {type: 'url', url: node.url};
@@ -68,10 +69,13 @@ function respondWithCodeImage(
   res,
   {code, lang}: {code: string, lang: ?string},
 ) {
-  const postData = JSON.stringify({code, theme: 'vscode'});
+  const postData = JSON.stringify({
+    code,
+    settings: {theme: Config.codeTheme, language: lang},
+  });
   return new Promise((resolve, reject) => {
     const req = https.request(
-      'https://carbonara.now.sh/api/cook',
+      'https://sourcecodeshots.com/api/image',
       {
         method: 'POST',
         headers: {
@@ -79,7 +83,7 @@ function respondWithCodeImage(
           'Content-Length': postData.length,
         },
       },
-      httpRes => {
+      (httpRes) => {
         res.status(httpRes.statusCode);
         for (const k of Object.keys(httpRes.headers)) {
           const lowerK = k.toLowerCase();
@@ -87,7 +91,7 @@ function respondWithCodeImage(
             res.set(k, httpRes.headers[k]);
           }
         }
-        httpRes.on('data', chunk => {
+        httpRes.on('data', (chunk) => {
           res.write(chunk);
         });
         httpRes.on('end', () => {
@@ -96,7 +100,7 @@ function respondWithCodeImage(
         });
       },
     );
-    req.on('error', err => {
+    req.on('error', (err) => {
       console.error('Error creating code image');
       res.send('Error');
       res.status(500);
@@ -112,15 +116,15 @@ export const ogImage = async (req: any, res: any) => {
 
   const data = await fetchQuery(createEnvironment(), postQuery, {
     issueNumber: postNumber,
-  });
+  }).toPromise();
 
-  const issue = data.gitHub?.repository?.issue;
+  const issue = data?.gitHub?.repository?.issue;
   if (
     !issue ||
     !issue.labels?.nodes?.length ||
-    !issue.labels.nodes.find(l => l && l.name.toLowerCase() === 'publish')
+    !issue.labels.nodes.find((l) => l && l.name.toLowerCase() === 'publish')
   ) {
-    res.status(500);
+    res.status(404);
     res.send('Could not find issue');
     return;
   }

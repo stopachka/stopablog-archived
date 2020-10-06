@@ -7,10 +7,10 @@ export default function Attribution() {
     return null;
   }
   return (
-    <Box align="center" pad={{bottom: 'small'}}>
+    <Box pad={{bottom: 'small'}} align="center">
       <Text size="xsmall">
         Powered by{' '}
-        <a href="https://github.com/OneGraph/oneblog" target="_blank">
+        <a href="https://www.onegraph.com/oneblog" target="_blank">
           OneBlog
         </a>{' '}
         with{' '}

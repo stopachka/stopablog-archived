@@ -8,6 +8,9 @@ export type Config = {
   description: ?string,
   defaultLogin: ?string,
   siteHostname: string,
+  gaTrackingId: ?string,
+  vercelUrl: ?string,
+  codeTheme: string,
 };
 
 function ensureEnv(s, variable: string): string {
@@ -27,6 +30,15 @@ function removeTrailingSlash(s: ?string): string {
   return s;
 }
 
+if (
+  !process.env.NEXT_PUBLIC_SITE_HOSTNAME &&
+  process.env.NODE_ENV === 'production'
+) {
+  console.warn(
+    'Missing NEXT_PUBLIC_SITE_HOSTNAME environment variable. OpenGraph preview images will be disabled.',
+  );
+}
+
 const config: Config = {
   // Owner of the repo that OneBlog should pull issues from
   repoOwner: ensureEnv(
@@ -43,11 +55,16 @@ const config: Config = {
     process.env.NEXT_PUBLIC_ONEGRAPH_APP_ID,
     'NEXT_PUBLIC_ONEGRAPH_APP_ID',
   ),
-  title: process.env.NEXT_PUBLIC_TITLE || 'OneBlog',
-  description: process.env.NEXT_PUBLIC_DESCRIPTION,
+  title: 'Stepan Parunashvili',
+  description: 'Read essays by Stepan Parunashvili',
   defaultLogin: process.env.NEXT_PUBLIC_DEFAULT_GITHUB_LOGIN,
-  siteHostname: removeTrailingSlash(process.env.NEXT_PUBLIC_SITE_HOSTNAME),
+  siteHostname: 'https://stopa.io',
   hideAttribution: process.env.NEXT_PUBLIC_HIDE_ATTRIBUTION,
+  gaTrackingId: 'UA-18190537-5',
+  vercelUrl: process.env.NEXT_PUBLIC_VERCEL_URL
+    ? removeTrailingSlash(`https://${process.env.NEXT_PUBLIC_VERCEL_URL}`)
+    : null,
+  codeTheme: process.env.NEXT_PUBLIC_CODE_THEME || 'tomorrow-night-blue',
 };
 
 export default config;
