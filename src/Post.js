@@ -467,7 +467,6 @@ export const Post = ({relay, post, context}: Props) => {
     }
   }, [environment, context, number]);
 
-  const authors = post.assignees.nodes || [];
   return (
     <PostBox>
       <Box pad={{left: 'medium', right: 'medium', bottom: 'medium'}}>
