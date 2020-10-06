@@ -1,4 +1,5 @@
 .gif-player {
+  text-align: center;
   display: inline-block;
   position: relative;
   cursor: pointer;
