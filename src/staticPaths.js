@@ -1,5 +1,5 @@
 import graphql from 'babel-plugin-relay/macro';
-import {fetchQuery} from 'react-relay';
+import {fetchQuery} from 'react-relay/hooks';
 import {createEnvironment} from './Environment';
 import {slugify} from './Post';
 
@@ -11,12 +11,12 @@ export const query = graphql`
     $count: Int!
     $cursor: String
   )
-    @persistedQueryConfiguration(
-      accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
-      fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
-      freeVariables: ["count", "cursor"]
-      cacheSeconds: 60
-    ) {
+  @persistedQueryConfiguration(
+    accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
+    fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
+    freeVariables: ["count", "cursor"]
+    cacheSeconds: 60
+  ) {
     gitHub {
       repository(name: $repoName, owner: $repoOwner) {
         issues(
@@ -49,7 +49,7 @@ export async function getStaticPaths() {
     const data = await fetchQuery(environment, query, {
       count: 100,
       cursor,
-    });
+    }).toPromise();
     cursor = data.gitHub.repository.issues.pageInfo.endCursor;
     // Only get the newest 100 for now to prevent API limits
     // TODO: Find a way to satisfy `getStaticProps` with the results of the
@@ -59,7 +59,7 @@ export async function getStaticPaths() {
       issues.push(issue);
     }
   }
-  return issues.map(issue => ({
+  return issues.map((issue) => ({
     params: {
       slug: [String(issue.number), slugify(issue.title)],
     },

@@ -1,5 +1,6 @@
 module.exports = () => {
   const opts = {
+    basePath: process.env.BASE_PATH,
     env: {
       // Backwards compatibility for people migrating from RAZZLE
       NEXT_PUBLIC_SITE_HOSTNAME:
@@ -12,14 +13,19 @@ module.exports = () => {
         process.env.RAZZLE_ONEGRAPH_APP_ID,
       NEXT_PUBLIC_GITHUB_REPO_OWNER:
         process.env.NEXT_PUBLIC_GITHUB_REPO_OWNER ||
-        process.env.RAZZLE_GITHUB_REPO_OWNER,
+        process.env.RAZZLE_GITHUB_REPO_OWNER ||
+        process.env.VERCEL_GITHUB_ORG,
       NEXT_PUBLIC_GITHUB_REPO_NAME:
         process.env.NEXT_PUBLIC_GITHUB_REPO_NAME ||
-        process.env.RAZZLE_GITHUB_REPO_NAME,
+        process.env.RAZZLE_GITHUB_REPO_NAME ||
+        process.env.VERCEL_GITHUB_REPO,
       NEXT_PUBLIC_TITLE:
         process.env.NEXT_PUBLIC_TITLE || process.env.RAZZLE_TITLE,
       NEXT_PUBLIC_DESCRIPTION:
         process.env.NEXT_PUBLIC_DESCRIPTION || process.env.RAZZLE_DESCRIPTION,
+      NEXT_PUBLIC_GOOGLE_ANALYTICS_TRACKING_ID:
+        process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_TRACKING_ID ||
+        process.env.RAZZLE_GOOGLE_ANALYTICS_TRACKING_ID,
     },
     experimental: {
       reactMode: 'concurrent',
@@ -30,28 +36,15 @@ module.exports = () => {
           source: '/feed.:ext',
           destination: '/api/feed/:ext',
         },
+        {
+          source: '/sitemap.xml',
+          destination: '/api/sitemap',
+        },
+        {
+          source: '/robots.txt',
+          destination: '/api/robots',
+        },
       ];
-    },
-    webpack(config, options) {
-      config.devtool = 'source-map';
-
-      for (const plugin of config.plugins) {
-        if (plugin.constructor.name === 'UglifyJsPlugin') {
-          plugin.options.sourceMap = true;
-          break;
-        }
-      }
-
-      if (config.optimization && config.optimization.minimizer) {
-        for (const plugin of config.optimization.minimizer) {
-          if (plugin.constructor.name === 'TerserPlugin') {
-            plugin.options.sourceMap = true;
-            break;
-          }
-        }
-      }
-
-      return config;
     },
   };
   if (process.env.NETLIFY) {

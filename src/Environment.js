@@ -1,12 +1,19 @@
 // @flow
 
 import React from 'react';
-import {Environment, Network, RecordSource, Store} from 'relay-runtime';
+import {
+  Environment,
+  Network,
+  RecordSource,
+  Store,
+  DefaultHandlerProvider,
+} from 'relay-runtime';
 import config from './config';
 
 import OneGraphAuth from 'onegraph-auth';
 
-import type {RecordMap} from 'relay-runtime/store/RelayStoreTypes';
+import type {RecordMap, Handler} from 'relay-runtime/store/RelayStoreTypes';
+import type {NotificationContextType} from './Notifications';
 
 class AuthDummy {
   isLoggedIn(x: any) {
@@ -56,7 +63,8 @@ async function checkifCorsRequired(): Promise<boolean> {
         config.appId,
     );
     const json = await response.json();
-    return !json.allowed;
+    // Default to false on any error
+    return json.allowed === false;
   } catch (e) {
     console.error('Error checking if CORS required');
     return false;
@@ -74,9 +82,12 @@ function maybeNullOutQuery(json) {
   return json;
 }
 
-type FetchQueryOpts = {onCorsError?: ?() => void};
+type Opts = {
+  notificationContext?: ?NotificationContextType,
+  registerMarkdown?: (markdown: string) => void,
+};
 
-function createFetchQuery(opts: ?FetchQueryOpts) {
+function createFetchQuery(opts: ?Opts) {
   return async function fetchQuery(operation, rawVariables, cacheConfig) {
     const variables = {};
     // Bit of a hack to prevent Relay from sending null values for variables
@@ -99,6 +110,9 @@ function createFetchQuery(opts: ?FetchQueryOpts) {
         requestBody,
       });
 
+      // eslint-disable-next-line no-unused-expressions
+      opts?.notificationContext?.clearCorsViolation();
+
       if (json.errors && Object.keys(onegraphAuth.authHeaders()).length) {
         // Clear auth on any error and try again
         onegraphAuth.destroy();
@@ -117,9 +131,10 @@ function createFetchQuery(opts: ?FetchQueryOpts) {
         if (isCorsRequired) {
           const error = new Error('Missing CORS origin.');
           (error: any).type = 'missing-cors';
-          if (opts?.onCorsError) {
-            opts.onCorsError();
-          }
+
+          // eslint-disable-next-line no-unused-expressions
+          opts?.notificationContext?.setCorsViolation();
+
           throw error;
         }
       }
@@ -128,11 +143,52 @@ function createFetchQuery(opts: ?FetchQueryOpts) {
   };
 }
 
-export function createEnvironment(opts?: ?FetchQueryOpts) {
+const isClientFetchedHandler = {
+  update(store, payload) {
+    const record = store.get(payload.dataID);
+    if (!record) {
+      return;
+    }
+    record.setValue(typeof window !== 'undefined', payload.handleKey);
+  },
+};
+
+function getRegisterMarkdownHandler(opts?: ?Opts) {
+  return {
+    update(store, payload) {
+      const record = store.get(payload.dataID);
+      if (!record) {
+        return;
+      }
+      const value = record.getValue(payload.fieldKey, payload.args);
+      if (value && typeof value === 'string' && opts?.registerMarkdown) {
+        opts.registerMarkdown(value);
+      }
+      record.setValue(value, payload.handleKey);
+    },
+  };
+}
+
+function createHandlerProvider(opts?: ?Opts) {
+  const registerMarkdownHandler = getRegisterMarkdownHandler(opts);
+  return function handlerProvider(handle: string): Handler {
+    switch (handle) {
+      case 'isClientFetched':
+        return isClientFetchedHandler;
+      case 'registerMarkdown':
+        return registerMarkdownHandler;
+      default:
+        return DefaultHandlerProvider(handle);
+    }
+  };
+}
+
+export function createEnvironment(opts?: ?Opts) {
   const recordSource = new RecordSource();
   const store = new Store(recordSource);
   store.holdGC();
   return new Environment({
+    handlerProvider: createHandlerProvider(opts),
     network: Network.create(createFetchQuery(opts)),
     store,
   });
@@ -142,20 +198,18 @@ let globalEnvironment;
 
 export function initEnvironment(
   initialRecords: ?RecordMap,
-  opts?: ?FetchQueryOpts,
+  opts?: ?Opts,
 ) {
   const environment = globalEnvironment ?? createEnvironment(opts);
   if (
     initialRecords &&
-    environment
-      .getStore()
-      .getSource()
-      .getRecordIDs().length <= 1
+    environment.getStore().getSource().getRecordIDs().length <= 1
   ) {
     environment.getStore().publish(new RecordSource(initialRecords));
   }
 
   if (typeof window !== 'undefined') {
+    window._env = environment;
     globalEnvironment = environment;
   }
 
@@ -164,7 +218,7 @@ export function initEnvironment(
 
 export function useEnvironment(
   initialRecords: ?RecordMap,
-  opts?: ?FetchQueryOpts,
+  opts?: ?Opts,
 ) {
   const store = React.useRef(initEnvironment(initialRecords, opts));
   return store.current;

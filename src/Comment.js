@@ -22,7 +22,7 @@ export default function Comment({comment}: Props) {
     graphql`
       fragment Comment_comment on GitHubIssueComment {
         id
-        body
+        body @__clientField(handle: "registerMarkdown")
         createdViaEmail
         author {
           ... on GitHubUser {
@@ -57,6 +57,7 @@ export default function Comment({comment}: Props) {
             nodes {
               login
               name
+              isViewer
             }
           }
         }
@@ -89,7 +90,7 @@ export default function Comment({comment}: Props) {
         </Text>
       </Box>
       <Box pad={{horizontal: 'small'}}>
-        <MarkdownRenderer escapeHtml={true} source={source} />
+        <MarkdownRenderer trustedInput={false} source={source} />
       </Box>
       <ReactionBar
         pad="none"

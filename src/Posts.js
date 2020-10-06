@@ -5,10 +5,12 @@ import React from 'react';
 import graphql from 'babel-plugin-relay/macro';
 import {createPaginationContainer, type RelayPaginationProp} from 'react-relay';
 import type {Posts_repository} from './__generated__/Posts_repository.graphql';
-import {Box} from 'grommet/components/Box';
-import {Heading} from 'grommet/components/Heading';
+import {Box, Heading} from 'grommet';
+import {useInView} from 'react-intersection-observer';
+import config from './config';
+import 'intersection-observer';
 import Link from 'next/link';
-import nullthrows from 'fbjs/lib/nullthrows';
+
 
 type Props = {|
   relay: RelayPaginationProp,
@@ -18,68 +20,54 @@ type Props = {|
 // TODO: pagination. Can do pages or infinite scroll
 const Posts = ({relay, repository}: Props) => {
   const [isLoading, setIsLoading] = React.useState(false);
-  const scheduledRef = React.useRef(false);
-  const handleScroll = React.useCallback(() => {
-    if (!scheduledRef.current) {
-      scheduledRef.current = true;
-      window.requestAnimationFrame(() => {
-        scheduledRef.current = false;
-        if (
-          window.innerHeight + (document.documentElement?.scrollTop ?? 0) >=
-          (document.documentElement?.offsetHeight || 0) - 500
-        ) {
-          if (!isLoading && !relay.isLoading() && relay.hasMore()) {
-            setIsLoading(true);
-            relay.loadMore(10, x => {
-              setIsLoading(false);
-            });
-          }
-        }
+  const [inViewRef, inView] = useInView({threshold: 0});
+
+  React.useEffect(() => {
+    if (inView && !isLoading && !relay.isLoading() && relay.hasMore()) {
+      setIsLoading(true);
+      relay.loadMore(60, x => {
+        setIsLoading(false);
       });
     }
-  }, [relay, isLoading, setIsLoading]);
-  React.useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [handleScroll]);
+  }, [relay, isLoading, setIsLoading, inView]);
 
-  const issues = repository.issues.edges || [];
+  const issues = [];
+  for (const edge of repository.issues.edges || []) {
+    if (edge && edge.node) {
+      issues.push(edge.node);
+    }
+  }
 
   return (
-    <>
-      <Box>
-        {issues
-          .map(e => e && e.node)
-          .filter(x => x)
-          .map(node => {
-            const post = nullthrows(node);
-            return (
-              <div key={post.number} className="post">
-                <h4
-                  style={{
-                    padding: '0 20px',
-                    paddingBottom: '20px',
-                    fontWeight: 'normal',
-                    margin: 0,
-                  }}>
-                  <Link href="/post/[...slug]" as={`/post/${post.number}`}>
-                    <a style={{textDecoration: 'underline'}}>{post.title}</a>
-                  </Link>
-                </h4>
-              </div>
-            );
-          })}
-        {isLoading ? (
-          <Box margin={{left: 'medium'}}>
-            <Heading level={4} style={{fontWeight: 'normal'}}>
-              <em>Loading...</em>
-            </Heading>
-          </Box>
-        ) : null}
-      </Box>
-    </>
+    <Box>
+      {issues.map((post, i) => {
+        return (
+          <div
+            key={post.number}
+            className="post"
+            ref={!isLoading && i === issues.length - 1 ? inViewRef : null}>
+            <h4
+              style={{
+                padding: '0 20px',
+                paddingBottom: '20px',
+                fontWeight: 'normal',
+                margin: 0,
+              }}>
+              <Link href="/post/[...slug]" as={`/post/${post.number}`}>
+                <a style={{textDecoration: 'underline'}}>{post.title}</a>
+              </Link>
+            </h4>
+          </div>
+        );
+      })}
+      {isLoading ? (
+        <Box margin={{left: 'medium'}}>
+          <Heading level={4} style={{fontWeight: 'normal'}}>
+            <em>Loading...</em>
+          </Heading>
+        </Box>
+      ) : null}
+    </Box>
   );
 };
 
@@ -88,20 +76,21 @@ export default createPaginationContainer(
   {
     repository: graphql`
       fragment Posts_repository on GitHubRepository
-        @argumentDefinitions(
-          count: {type: "Int", defaultValue: 60}
-          cursor: {type: "String"}
-          orderBy: {
-            type: "GitHubIssueOrder"
-            defaultValue: {direction: DESC, field: CREATED_AT}
-          }
-        ) {
+      @argumentDefinitions(
+        count: {type: "Int", defaultValue: 50}
+        cursor: {type: "String"}
+        orderBy: {
+          type: "GitHubIssueOrder"
+          defaultValue: {direction: DESC, field: CREATED_AT}
+        }
+      ) {
         issues(
           first: $count
           after: $cursor
           orderBy: $orderBy
           labels: ["publish", "Publish"]
         ) @connection(key: "Posts_posts_issues") {
+          isClientFetched @__clientField(handle: "isClientFetched")
           edges {
             node {
               id
