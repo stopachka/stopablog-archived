@@ -124,12 +124,12 @@ export default createPaginationContainer(
         $repoOwner: String!
         $repoName: String!
       )
-        @persistedQueryConfiguration(
-          accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
-          freeVariables: ["count", "cursor", "orderBy"]
-          fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
-          cacheSeconds: 300
-        ) {
+      @persistedQueryConfiguration(
+        accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
+        freeVariables: ["count", "cursor", "orderBy"]
+        fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
+        cacheSeconds: 300
+      ) {
         gitHub {
           repository(name: $repoName, owner: $repoOwner) {
             __typename
