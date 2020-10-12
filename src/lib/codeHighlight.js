@@ -66,8 +66,10 @@ export function fetchTokenInfo({
           },
           body: JSON.stringify({
             code,
-            language: language,
-            theme: Config.codeTheme,
+            settings: {
+              language: language,
+              theme: Config.codeTheme,
+            },
           }),
         });
   return resp
