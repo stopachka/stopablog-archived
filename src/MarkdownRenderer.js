@@ -119,8 +119,13 @@ function PlainImage(imageProps) {
   return (
     <Box as="span" align="center" justify="center" style={{display: 'flex'}}>
       {/*eslint-disable-next-line jsx-a11y/alt-text*/}
-      <img style={{maxWidth: '100%'}} src={imageUrl({src})} {...props} />
-      {props.isRss ? <br /> : null}
+      <img
+        style={{maxWidth: '100%'}}
+        // Don't proxy image if it's served on an RSS feed to avoid CORs errors
+        src={false && isRss ? src : imageUrl({src})}
+        {...props}
+      />
+      {isRss ? <br /> : null}
       {props.title ? (
         <Text
           style={{display: 'block'}}
@@ -129,7 +134,7 @@ function PlainImage(imageProps) {
           weight={300}
           color="dark-1"
           textAlign="center">
-          {props.isRss ? <em>{props.title}</em> : props.title}
+          {isRss ? <em>{props.title}</em> : props.title}
         </Text>
       ) : null}
     </Box>
@@ -142,7 +147,7 @@ function isGif(src: string) {
 }
 
 function Image(props) {
-  if (props.src && isGif(props.src)) {
+  if (props.src && isGif(props.src) && !props.isRss) {
     return <GifPlayer style={{maxWidth: '100%'}} src={props.src} />;
   }
   return <PlainImage {...props} />;
