@@ -577,7 +577,20 @@ export const Post = ({relay, post, context}: Props) => {
 
         <Box direction="row" justify="between"></Box>
         <Text>
-          <MarkdownRenderer trustedInput={true} source={post.body} />
+          <MarkdownRenderer
+            trustedInput={true}
+            source={post.body}
+            addHeadingIds={context === 'details'}
+            HashLink={function HashLink(props) {
+              return (
+                <Link
+                  href="/post/[...slug]"
+                  as={`${postPath({post})}${props.hash}`}>
+                  <a>{props.children}</a>
+                </Link>
+              );
+            }}
+          />
         </Text>
       </Box>
     </PostBox>

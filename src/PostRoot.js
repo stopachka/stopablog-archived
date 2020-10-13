@@ -28,12 +28,12 @@ export const query = graphql`
     $repoName: String!
     $repoOwner: String!
   )
-    @persistedQueryConfiguration(
-      accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
-      fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
-      freeVariables: ["issueNumber"]
-      cacheSeconds: 300
-    ) {
+  @persistedQueryConfiguration(
+    accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
+    fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
+    freeVariables: ["issueNumber"]
+    cacheSeconds: 300
+  ) {
     gitHub {
       viewer {
         login
@@ -114,7 +114,7 @@ export const PostRoot = ({issueNumber}: {issueNumber: number}) => {
     !gitHub ||
     !post ||
     !labels ||
-    !labels.find(l => l && l.name.toLowerCase() === 'publish')
+    !labels.find((l) => l && l.name.toLowerCase() === 'publish')
   ) {
     return <ErrorBox error={new Error('Missing post.')} />;
   } else {
