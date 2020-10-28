@@ -566,33 +566,43 @@ export const Post = ({relay, post, context}: Props) => {
     }
   }, [environment, context, number]);
 
+  // HACK
+  // making my georgian posts sans-serif, as they don't quite look right with
+  // serif
+  const alterStyle = `${post.number}` === '266' ? 
+    {
+      fontFamily: 'Helvetica Neue, Roboto, sans-serif'
+    }
+    : {}
   return (
     <PostBox>
-      <Box pad={{left: 'medium', right: 'medium', bottom: 'medium'}}>
-        <h1>
-          <Link href="/post/[...slug]" as={postPath({post})} shallow={true}>
-            <a style={{color: 'inherit'}}>{post.title}</a>
-          </Link>
-        </h1>
+      <div style={alterStyle}>
+        <Box pad={{left: 'medium', right: 'medium', bottom: 'medium'}}>
+          <h1>
+            <Link href="/post/[...slug]" as={postPath({post})} shallow={true}>
+              <a style={{color: 'inherit'}}>{post.title}</a>
+            </Link>
+          </h1>
 
-        <Box direction="row" justify="between"></Box>
-        <Text>
-          <MarkdownRenderer
-            trustedInput={true}
-            source={post.body}
-            addHeadingIds={context === 'details'}
-            HashLink={function HashLink(props) {
-              return (
-                <Link
-                  href="/post/[...slug]"
-                  as={`${postPath({post})}${props.hash}`}>
-                  <a>{props.children}</a>
-                </Link>
-              );
-            }}
-          />
-        </Text>
-      </Box>
+          <Box direction="row" justify="between"></Box>
+          <Text>
+            <MarkdownRenderer
+              trustedInput={true}
+              source={post.body}
+              addHeadingIds={context === 'details'}
+              HashLink={function HashLink(props) {
+                return (
+                  <Link
+                    href="/post/[...slug]"
+                    as={`${postPath({post})}${props.hash}`}>
+                    <a>{props.children}</a>
+                  </Link>
+                );
+              }}
+            />
+          </Text>
+        </Box>
+      </div>
     </PostBox>
   );
 };
