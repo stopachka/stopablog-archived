@@ -132,8 +132,8 @@ export class CodeBlock extends React.PureComponent<
         style={{
           display: 'block',
           overflowX: 'auto',
-          padding: '1em',
-          borderRadius: 4,
+          padding: '0.5em',
+          borderRadius: 5,
           color: defaultThemeColors[theme]?.foregroundColor || '#fff',
           background: defaultThemeColors[theme]?.backgroundColor || '#000',
         }}>
