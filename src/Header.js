@@ -1,10 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react';
-import {Box, Heading} from 'grommet';
-import Avatar from './Avatar';
 import Link from 'next/link';
-import config from './config';
-import {PostBox} from './Post';
 
 function Header({gitHub, adminLinks}) {
   return (

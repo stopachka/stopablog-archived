@@ -4,7 +4,7 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import htmlParser from 'react-markdown/plugins/html-parser';
 import HtmlToReact from 'html-to-react';
-import Embed from 'react-embed';
+import Embed from './Embed';
 import GifPlayer from './GifPlayer';
 import imageUrl from './imageUrl';
 import {Anchor} from 'grommet/components/Anchor';
@@ -13,12 +13,13 @@ import {Heading} from 'grommet/components/Heading';
 import {Box} from 'grommet/components/Box';
 import {Text} from 'grommet/components/Text';
 import {ResponsiveContext} from 'grommet/contexts/ResponsiveContext';
+import {Table, TableHeader, TableBody, TableRow, TableCell} from 'grommet';
 import emoji from './emoji';
 import {fetchTokenInfo, defaultThemeColors} from './lib/codeHighlight';
 import {isPromise} from 'relay-runtime';
-import Config from './config';
 import Tippy from '@tippyjs/react';
 import {slugify} from './Post';
+import ConfigContext from './ConfigContext';
 
 import type {TokenInfo} from './lib/codeHighlight';
 import type {StatelessFunctionalComponent, Node} from 'react';
@@ -33,11 +34,10 @@ type Props = {|
   }>,
 |};
 
-class CodeBlock extends React.PureComponent<
-  {
-    value: string,
-    language: string,
-  },
+type CodeBlockProps = {|value: string, language: string, theme: string|};
+
+export class CodeBlock extends React.PureComponent<
+  CodeBlockProps,
   {
     tokenInfo: TokenInfo | Promise<TokenInfo>,
   },
@@ -46,21 +46,52 @@ class CodeBlock extends React.PureComponent<
     tokenInfo: fetchTokenInfo({
       code: this.props.value,
       language: this.props.language,
+      theme: this.props.theme,
     }),
   };
 
-  componentDidMount() {
-    const {tokenInfo} = this.state;
+  _updateTokenInfo = (tokenInfo: TokenInfo | Promise<TokenInfo>) => {
     if (isPromise(tokenInfo)) {
       tokenInfo
-        .then((res) => this.setState({tokenInfo: res}))
+        .then((res) => {
+          this.setState((prevState) => {
+            if (prevState.tokenInfo === tokenInfo) {
+              return {tokenInfo: res};
+            } else {
+              return prevState;
+            }
+          });
+        })
         .catch((e) => {
           console.error('Error fetching token info', e);
         });
     }
+  };
+
+  componentDidMount() {
+    this._updateTokenInfo(this.state.tokenInfo);
   }
+
+  componentDidUpdate(prevProps: CodeBlockProps) {
+    if (
+      this.props.value !== prevProps.value ||
+      this.props.language !== prevProps.language ||
+      this.props.theme !== prevProps.theme
+    ) {
+      const tokenInfo = fetchTokenInfo({
+        code: this.props.value,
+        language: this.props.language,
+        theme: this.props.theme,
+      });
+      this.setState({
+        tokenInfo,
+      });
+      this._updateTokenInfo(tokenInfo);
+    }
+  }
+
   render() {
-    const {language, value} = this.props;
+    const {language, value, theme} = this.props;
     const {tokenInfo} = this.state;
 
     if (!isPromise(tokenInfo)) {
@@ -101,12 +132,10 @@ class CodeBlock extends React.PureComponent<
         style={{
           display: 'block',
           overflowX: 'auto',
-          padding: '0.5em',
-          borderRadius: 5,
-          color:
-            defaultThemeColors[Config.codeTheme]?.foregroundColor || '#fff',
-          background:
-            defaultThemeColors[Config.codeTheme]?.backgroundColor || '#000',
+          padding: '1em',
+          borderRadius: 4,
+          color: defaultThemeColors[theme]?.foregroundColor || '#fff',
+          background: defaultThemeColors[theme]?.backgroundColor || '#000',
         }}>
         <code className={`language-${language}`}>{value}</code>
       </pre>
@@ -122,7 +151,7 @@ function PlainImage(imageProps) {
       <img
         style={{maxWidth: '100%'}}
         // Don't proxy image if it's served on an RSS feed to avoid CORs errors
-        src={false && isRss ? src : imageUrl({src})}
+        src={isRss ? src : imageUrl({src})}
         {...props}
       />
       {isRss ? <br /> : null}
@@ -148,7 +177,11 @@ function isGif(src: string) {
 
 function Image(props) {
   if (props.src && isGif(props.src) && !props.isRss) {
-    return <GifPlayer style={{maxWidth: '100%'}} src={props.src} />;
+    return (
+      <Box margin={{vertical: 'medium'}}>
+        <GifPlayer style={{maxWidth: '100%'}} src={props.src} />
+      </Box>
+    );
   }
   return <PlainImage {...props} />;
 }
@@ -246,6 +279,14 @@ function Link(props) {
   return <a {...props} style={{textDecoration: 'underline'}} target="_blank" />;
 }
 
+function Code(props) {
+  const {config} = React.useContext(ConfigContext);
+  if (props.language === 'backmatter') {
+    return null;
+  }
+  return <CodeBlock theme={config.codeTheme} {...props} />;
+}
+
 function flatten(text, child) {
   return typeof child === 'string'
     ? text + child
@@ -294,12 +335,7 @@ const defaultRenderers = ({
         </code>
       );
     },
-    code(props) {
-      if (props.language === 'backmatter') {
-        return null;
-      }
-      return <CodeBlock {...props} />;
-    },
+    code: Code,
     image: Image,
     paragraph: ParagraphWrapper,
     heading(props) {
@@ -307,7 +343,6 @@ const defaultRenderers = ({
        * NOTE(stopachka)
        * Because this content is inside of a post, the highest heading level should be H2
        */
-
       return (
         <Heading
           id={addHeadingIds ? headingSlug(props) : undefined}
@@ -320,6 +355,11 @@ const defaultRenderers = ({
     linkReference(props) {
       return <span {...props} />;
     },
+    table: Table,
+    tableHead: TableHeader,
+    tableBody: TableBody,
+    tableRow: TableRow,
+    tableCell: TableCell,
     footnoteReference: function FootnoteReference(props) {
       // This should be ok because we will always call these in the same order
       // eslint-disable-next-line react-hooks/rules-of-hooks

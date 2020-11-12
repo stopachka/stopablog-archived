@@ -29,6 +29,7 @@ Copy `/.env.example` to `/.env` and set the following environment variables.
 | `NEXT_PUBLIC_DESCRIPTION`       | A short description of your site.                                                                                                                                                                                                                                                                                                                                                                 |
 | `NEXT_PUBLIC_GITHUB_REPO_OWNER` | The owner of the repo that we should pull issues from (e.g. linus in linus/oneblog). If you're using the Vercel deploy button, you don't need to provide this.                                                                                                                                                                                                                                    |
 | `NEXT_PUBLIC_GITHUB_REPO_NAME`  | The name of the repo that we should pull issues from (e.g. oneblog in linus/oneblog). If you're using the Vercel deploy button, you don't need to provide this.                                                                                                                                                                                                                                   |
+
 ### Setup relay
 
 Remove the generated files (they're tied to the OneGraph app they were generated with):

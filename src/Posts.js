@@ -11,7 +11,6 @@ import config from './config';
 import 'intersection-observer';
 import Link from 'next/link';
 
-
 type Props = {|
   relay: RelayPaginationProp,
   repository: Posts_repository,
