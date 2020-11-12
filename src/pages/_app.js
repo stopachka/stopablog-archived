@@ -17,6 +17,8 @@ import {useRouter} from 'next/router';
 import {query as loginQuery} from '../LoginQuery';
 import * as trk from '../lib/trk';
 import {registerTokenInfo} from '../lib/codeHighlight';
+import Config from '../config';
+import ConfigContext from '../ConfigContext';
 
 function AppComponent({
   Component,
@@ -99,8 +101,13 @@ function App({Component, pageProps}: any) {
   });
 
   if (pageProps.tokenInfos) {
-    for (const code of Object.keys(pageProps.tokenInfos)) {
-      registerTokenInfo({code, tokenInfo: pageProps.tokenInfos[code]});
+    for (const {code, theme, language, tokenInfo} of pageProps.tokenInfos) {
+      registerTokenInfo({
+        code,
+        theme,
+        language,
+        tokenInfo,
+      });
     }
   }
 
@@ -141,26 +148,34 @@ function App({Component, pageProps}: any) {
     );
   };
 
+  const [config, setConfig] = React.useState(Config);
+
   return (
-    <RelayEnvironmentProvider environment={environment}>
-      <Head />
-      <UserContext.Provider
-        value={{
-          loginStatus,
-          login,
-          logout,
-        }}>
-        <div style={{position: 'relative'}}>
-          <AppComponent
-            Component={Component}
-            pageProps={pageProps}
-            indexPageMemo={indexPageMemo}
-            indexPageScrollPos={indexPageScrollPos}
-            isIndexPage={isIndexPage}
-          />
-        </div>
-      </UserContext.Provider>
-    </RelayEnvironmentProvider>
+    <ConfigContext.Provider
+      value={{
+        config: config,
+        updateConfig: (configShape) => setConfig({...config, ...configShape}),
+      }}>
+      <RelayEnvironmentProvider environment={environment}>
+        <Head />
+        <UserContext.Provider
+          value={{
+            loginStatus,
+            login,
+            logout,
+          }}>
+          <div style={{position: 'relative'}}>
+            <AppComponent
+              Component={Component}
+              pageProps={pageProps}
+              indexPageMemo={indexPageMemo}
+              indexPageScrollPos={indexPageScrollPos}
+              isIndexPage={isIndexPage}
+            />
+          </div>
+        </UserContext.Provider>
+      </RelayEnvironmentProvider>
+    </ConfigContext.Provider>
   );
 }
 
