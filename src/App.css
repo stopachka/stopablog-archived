@@ -76,3 +76,11 @@ li {
   font-size: 1.1em;
   line-height: 1.6;
 }
+
+table { 
+  min-width: 100%;
+}
+
+td > div { 
+  display: block !important;
+}
