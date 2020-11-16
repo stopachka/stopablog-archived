@@ -299,6 +299,14 @@ function headingSlug(props) {
   return slugify(text.toLowerCase());
 }
 
+function TableWrapper(props) {
+  return (
+    <div style={{overflowX: 'auto', overflowY: 'visible'}}>
+      <Table {...props} />
+    </div>
+  );
+}
+
 const defaultRenderers = ({
   isRss,
   addHeadingIds,
@@ -355,7 +363,7 @@ const defaultRenderers = ({
     linkReference(props) {
       return <span {...props} />;
     },
-    table: Table,
+    table: TableWrapper,
     tableHead: TableHeader,
     tableBody: TableBody,
     tableRow: TableRow,
