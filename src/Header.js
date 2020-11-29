@@ -25,6 +25,12 @@ function Header({gitHub, adminLinks}) {
             target="_blank">
             Twitter
           </a>
+          <a
+            style={{paddingLeft: '1em'}}
+            href="https://www.zeneca.io/stopa"
+            target="_blank">
+            Books
+          </a>
         </h4>
       </header>
     </>
