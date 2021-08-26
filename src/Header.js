@@ -17,7 +17,7 @@ function Header({gitHub, adminLinks}) {
           className="app-header-title"
           style={{paddingRight: '10px', margin: 0, fontWeight: 500}}>
           <Link href={'/'}>
-            <a style={{color: 'inherit'}}>Stepan Parunashvili</a>
+            <a style={{color: 'inherit'}}>Stepan <span className="app-header-last-name">Parunashvili</span></a>
           </Link>
           <a
             style={{paddingLeft: '1em'}}
@@ -30,6 +30,12 @@ function Header({gitHub, adminLinks}) {
             href="https://www.zeneca.io/stopa"
             target="_blank">
             Books
+          </a>
+          <a
+            style={{paddingLeft: '1em'}}
+            href="https://consistent.fit"
+            target="_blank">
+            Fitness
           </a>
         </h4>
       </header>

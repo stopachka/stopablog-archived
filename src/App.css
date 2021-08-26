@@ -77,10 +77,16 @@ li {
   line-height: 1.6;
 }
 
-table { 
+table {
   min-width: 100%;
 }
 
-td > div { 
+td > div {
   display: block !important;
+}
+
+@media (max-width: 600px) {
+  .app-header-last-name {
+    display: none;
+  }
 }
