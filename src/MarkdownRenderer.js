@@ -378,10 +378,10 @@ const defaultRenderers = ({
           style={{
             lineHeight: 0,
             cursor: 'pointer',
-            fontSize: '0.8em',
+            fontSize: '0.7em',
           }}
           ref={ref}>
-          {Object.keys(footnoteRefs).indexOf(props.identifier) + 1}
+          [{Object.keys(footnoteRefs).indexOf(props.identifier) + 1}]
         </sup>
       );
     },
