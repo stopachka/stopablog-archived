@@ -149,7 +149,7 @@ function PlainImage(imageProps) {
     <Box as="span" align="center" justify="center" style={{display: 'flex'}}>
       {/*eslint-disable-next-line jsx-a11y/alt-text*/}
       <img
-        style={{maxWidth: '100%'}}
+        style={{maxWidth: '110%'}}
         // Don't proxy image if it's served on an RSS feed to avoid CORs errors
         src={isRss ? src : imageUrl({src})}
         {...props}
