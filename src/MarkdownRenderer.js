@@ -157,9 +157,9 @@ function PlainImage(imageProps) {
       {isRss ? <br /> : null}
       {props.title ? (
         <Text
-          style={{display: 'block'}}
+          style={{display: 'block', fontStyle: 'italic'}}
           size="xsmall"
-          margin="small"
+          margin="xsmall"
           weight={300}
           color="dark-1"
           textAlign="center">
@@ -414,9 +414,9 @@ const defaultRenderers = ({
           duration={[75, 75]}
           delay={500}
           content={
-            <Box style={{transform: 'scale(0.8)'}}>
+            <div className="footnote-container">
               <Text size="small">{props.children}</Text>
-            </Box>
+            </div>
           }
           reference={ref}
         />
