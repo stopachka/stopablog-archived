@@ -17,7 +17,9 @@ function Header({gitHub, adminLinks}) {
           className="app-header-title"
           style={{paddingRight: '10px', margin: 0, fontWeight: 500}}>
           <Link href={'/'}>
-            <a style={{color: 'inherit'}}>Stepan <span className="app-header-last-name">Parunashvili</span></a>
+            <a style={{color: 'inherit'}}>
+              Stepan <span className="app-header-last-name">Parunashvili</span>
+            </a>
           </Link>
           <a
             style={{paddingLeft: '1em'}}
@@ -33,9 +35,9 @@ function Header({gitHub, adminLinks}) {
           </a>
           <a
             style={{paddingLeft: '1em'}}
-            href="https://consistent.fit"
+            href="https://instantdb.dev"
             target="_blank">
-            Fitness
+            Instant
           </a>
         </h4>
       </header>
