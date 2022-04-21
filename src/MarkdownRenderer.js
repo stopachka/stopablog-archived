@@ -23,6 +23,7 @@ import ConfigContext from './ConfigContext';
 
 import type {TokenInfo} from './lib/codeHighlight';
 import type {StatelessFunctionalComponent, Node} from 'react';
+import config from './config';
 
 type Props = {|
   source: string,
@@ -148,12 +149,18 @@ function PlainImage(imageProps) {
   return (
     <Box as="span" align="center" justify="center" style={{display: 'flex'}}>
       {/*eslint-disable-next-line jsx-a11y/alt-text*/}
-      <img
-        style={{maxWidth: '110%'}}
-        // Don't proxy image if it's served on an RSS feed to avoid CORs errors
-        src={isRss ? src : imageUrl({src})}
-        {...props}
-      />
+      <div
+        style={{
+          marginLeft: `-${config.postMarginPx}px`,
+          marginRight: `-${config.postMarginPx}px`,
+        }}>
+        <img
+          style={{maxWidth: '100%'}}
+          // Don't proxy image if it's served on an RSS feed to avoid CORs errors
+          src={isRss ? src : imageUrl({src})}
+          {...props}
+        />
+      </div>
       {isRss ? <br /> : null}
       {props.title ? (
         <Text

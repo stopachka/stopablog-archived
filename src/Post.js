@@ -31,6 +31,7 @@ import parseMarkdown from './lib/parseMarkdown';
 import Head from 'next/head';
 
 import type {Post_post} from './__generated__/Post_post.graphql';
+import config from './config';
 
 // n.b. no accessToken in the persistedQueryConfiguration for these mutations,
 // because we want to add reactions on behalf of the logged-in user, not the
@@ -576,11 +577,12 @@ export const Post = ({relay, post, context}: Props) => {
   // HACK
   // making my georgian posts sans-serif, as they don't quite look right with
   // serif
-  const alterStyle = `${post.number}` === '266' ? 
-    {
-      fontFamily: 'Helvetica Neue, Roboto, sans-serif'
-    }
-    : {}
+  const alterStyle =
+    `${post.number}` === '266'
+      ? {
+          fontFamily: 'Helvetica Neue, Roboto, sans-serif',
+        }
+      : {};
   return (
     <PostBox>
       <Head>
@@ -590,7 +592,7 @@ export const Post = ({relay, post, context}: Props) => {
       </Head>
 
       <div style={alterStyle}>
-        <Box pad={{left: 'medium', right: 'medium', bottom: 'medium'}}>
+        <div style={{margin: `${config.postMarginPx}px`}}>
           <h1>
             <Link href="/post/[...slug]" as={postPath({post})} shallow={true}>
               <a style={{color: 'inherit'}}>{post.title}</a>
@@ -614,7 +616,7 @@ export const Post = ({relay, post, context}: Props) => {
               }}
             />
           </Text>
-        </Box>
+        </div>
       </div>
     </PostBox>
   );
