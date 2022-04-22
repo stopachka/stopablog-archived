@@ -215,15 +215,9 @@ export function createEnvironment(opts?: ?Opts) {
 
 let globalEnvironment;
 
-export function initEnvironment(
-  initialRecords: ?RecordMap,
-  opts?: ?Opts,
-) {
+export function initEnvironment(initialRecords: ?RecordMap, opts?: ?Opts) {
   const environment = globalEnvironment ?? createEnvironment(opts);
-  if (
-    initialRecords &&
-    environment.getStore().getSource().getRecordIDs().length <= 1
-  ) {
+  if (initialRecords) {
     environment.getStore().publish(new RecordSource(initialRecords));
   }
 
@@ -235,10 +229,11 @@ export function initEnvironment(
   return environment;
 }
 
-export function useEnvironment(
-  initialRecords: ?RecordMap,
-  opts?: ?Opts,
-) {
-  const store = React.useRef(initEnvironment(initialRecords, opts));
-  return store.current;
+export function useEnvironment(initialRecords: ?RecordMap, opts?: ?Opts) {
+  const store = React.useMemo(() => initEnvironment(initialRecords, opts), [
+    initialRecords,
+    opts,
+  ]);
+
+  return store;
 }
