@@ -18,8 +18,8 @@ export default function Attribution() {
           OneBlog
         </a>{' '}
         with{' '}
-        <a href="https://www.onegraph.com" target="_blank">
-          OneGraph's GraphQL API
+        <a href="https://docs.netlify.com/netlify-labs/experimental-features/netlify-graph/" target="_blank">
+          Netlify Graph
         </a>
       </Text>
     </Box>
