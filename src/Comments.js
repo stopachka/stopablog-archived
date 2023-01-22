@@ -287,7 +287,6 @@ export default createPaginationContainer(
         $repoOwner: String!
       )
       @persistedQueryConfiguration(
-        accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
         freeVariables: ["count", "cursor", "issueNumber"]
         fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
         cacheSeconds: 300

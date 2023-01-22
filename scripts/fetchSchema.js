@@ -60,18 +60,12 @@ function runIntrospectionQuery() {
 // XXX: Get rid of persistedQueryConfiguration, or at least the gh token aspect
 
 const persistQueryConfigDirective = `
-  input PersistedQueryAccessTokenConfiguration {
-    "The environment variable that holds the access token"
-    environmentVariable: String!
-  }
-
   input PersistedQueryFixedVariablesConfiguration {
     "The environment variable that holds the fixed variables"
     environmentVariable: String!
   }
 
   directive @persistedQueryConfiguration(
-    accessToken: PersistedQueryAccessTokenConfiguration
     fixedVariables: PersistedQueryFixedVariablesConfiguration
     "List of variables that the user can provide"
     freeVariables: [String!]

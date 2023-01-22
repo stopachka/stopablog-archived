@@ -16,7 +16,6 @@ export const query = graphql`
   # repoName and repoOwner provided by fixedVariables
   query PostsRoot_Query($repoName: String!, $repoOwner: String!)
   @persistedQueryConfiguration(
-    accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
     fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
     cacheSeconds: 300
   ) {

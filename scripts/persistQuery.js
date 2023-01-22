@@ -28,41 +28,10 @@ if (
   ] = `{"repoName": "${repoName}", "repoOwner": "${repoOwner}"}`;
 }
 
-const PERSIST_QUERY_MUTATION = `
-  mutation PersistQuery(
-    $freeVariables: [String!]!
-    $appId: String!
-    $accessToken: String
-    $query: String!
-    $fixedVariables: JSON
-    $cacheStrategy: OneGraphPersistedQueryCacheStrategyArg
-    $fallbackOnError: Boolean!
-  ) {
-    oneGraph {
-      createPersistedQuery(
-        input: {
-          query: $query
-          accessToken: $accessToken
-          appId: $appId
-          cacheStrategy: $cacheStrategy
-          freeVariables: $freeVariables
-          fixedVariables: $fixedVariables
-          fallbackOnError: $fallbackOnError
-        }
-      ) {
-        persistedQuery {
-          id
-        }
-      }
-    }
-  }
-`;
-
 async function persistQuery(queryText) {
   const ast = parse(queryText, {noLocation: true});
 
   const freeVariables = new Set([]);
-  let accessToken = null;
   let fixedVariables = null;
   let cacheSeconds = null;
   let operationName = null;
@@ -73,9 +42,6 @@ async function persistQuery(queryText) {
         operationType = node.operation;
         for (const directive of node.directives) {
           if (directive.name.value === 'persistedQueryConfiguration') {
-            const accessTokenArg = directive.arguments.find(
-              (a) => a.name.value === 'accessToken',
-            );
             const fixedVariablesArg = directive.arguments.find(
               (a) => a.name.value === 'fixedVariables',
             );
@@ -86,29 +52,6 @@ async function persistQuery(queryText) {
             const cacheSecondsArg = directive.arguments.find(
               (a) => a.name.value === 'cacheSeconds',
             );
-
-            if (accessTokenArg) {
-              const envArg = accessTokenArg.value.fields.find(
-                (f) => f.name.value === 'environmentVariable',
-              );
-              if (envArg) {
-                if (accessToken) {
-                  throw new Error(
-                    'Access token is already defined for operation=' +
-                      node.name.value,
-                  );
-                }
-                const envVar = envArg.value.value;
-                accessToken = process.env[envVar];
-                if (!accessToken) {
-                  throw new Error(
-                    'Cannot persist query. Missing environment variable `' +
-                      envVar +
-                      '`.',
-                  );
-                }
-              }
-            }
 
             if (fixedVariablesArg) {
               const envArg = fixedVariablesArg.value.fields.find(

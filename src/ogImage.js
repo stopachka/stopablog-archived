@@ -16,7 +16,6 @@ const postQuery = graphql`
     $repoOwner: String!
   )
   @persistedQueryConfiguration(
-    accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
     fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
     freeVariables: ["issueNumber"]
     cacheSeconds: 300
