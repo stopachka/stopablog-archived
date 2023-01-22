@@ -12,26 +12,31 @@ const fs = require('fs');
 
 const yargs = require('yargs');
 
+const token = process.env.GITHUB_TOKEN;
+
+if (!token) {
+  throw new Error('Missing env variable GITHUB_TOKEN');
+}
+
 function runIntrospectionQuery() {
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({query: getIntrospectionQuery()});
     let data = '';
     const req = https.request(
       {
-        hostname: 'serve.onegraph.com',
+        hostname: 'api.github.com',
         port: 443,
-        path:
-          '/graphql?app_id=' +
-          (process.env.NEXT_PUBLIC_ONEGRAPH_APP_ID ||
-            process.env.RAZZLE_ONEGRAPH_APP_ID),
+        path: '/graphql',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Content-Length': body.length,
+          'User-Agent': 'oneblog',
+          'Authorization': `Bearer ${token}`
         },
       },
-      res => {
-        res.on('data', chunk => {
+      (res) => {
+        res.on('data', (chunk) => {
           data += chunk;
         });
         res.on('end', () => {
@@ -51,6 +56,8 @@ function runIntrospectionQuery() {
     req.end();
   });
 }
+
+// XXX: Get rid of persistedQueryConfiguration, or at least the gh token aspect
 
 const persistQueryConfigDirective = `
   input PersistedQueryAccessTokenConfiguration {
@@ -88,7 +95,7 @@ async function main(config) {
 }
 
 const argv = yargs
-  .usage('Fetch OneGraph schema $0 --path <path>')
+  .usage('Fetch GitHub GraphQL schema $0 --path <path>')
   .options({
     path: {
       describe: 'Path to save schema.graphql',
@@ -99,7 +106,7 @@ const argv = yargs
   })
   .help().argv;
 
-main(argv).catch(error => {
+main(argv).catch((error) => {
   console.error(String(error.stack || error));
   process.exit(1);
 });
