@@ -41,7 +41,7 @@
     "build": "yarn relay && next build",
     "start:prod": "NODE_ENV=production node build/server.js",
     "relay": "relay-compiler --src ./src --schema ./schema.graphql --persistFunction scripts/persistQuery.js",
-    "relay:clean": "rm -r src/__generated__",
+    "relay:clean": "rm -r src/__generated__ src/pages/api/__generated__",
     "flow": "flow",
     "fetch-schema": "node scripts/fetchSchema.js --path schema.graphql",
     "ensure-publish-label": "node scripts/ensurePublishLabel.js",
@@ -52,11 +52,7 @@
     "extends": "react-app"
   },
   "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
+    "production": [">0.2%", "not dead", "not op_mini all"],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",

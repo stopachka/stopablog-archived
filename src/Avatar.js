@@ -60,7 +60,7 @@ export default function Avatar({gitHub, adminLinks: extraAdminLinks}: Props) {
 
   const data: Avatar_gitHub$data = useFragment(
     graphql`
-      fragment Avatar_gitHub on GitHubQuery
+      fragment Avatar_gitHub on Query
       @argumentDefinitions(
         repoName: {type: "String!"}
         repoOwner: {type: "String!"}

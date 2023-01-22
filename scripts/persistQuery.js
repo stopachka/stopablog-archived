@@ -1,14 +1,16 @@
 const https = require('https');
 const GraphQLLanguage = require('graphql/language');
 const {parse, print} = require('graphql');
+const fs = require('fs');
+const prettier = require('prettier');
 
 require('dotenv').config();
 
 if (
   (!process.env.REPOSITORY_FIXED_VARIABLES &&
     // Backwards compat with older apps that started with razzle
-    (process.env.RAZZLE_GITHUB_REPO_OWNER &&
-      process.env.RAZZLE_GITHUB_REPO_NAME)) ||
+    process.env.RAZZLE_GITHUB_REPO_OWNER &&
+    process.env.RAZZLE_GITHUB_REPO_NAME) ||
   (process.env.NEXT_PUBLIC_GITHUB_REPO_OWNER &&
     process.env.NEXT_PUBLIC_GITHUB_REPO_NAME) ||
   (process.env.VERCEL_GITHUB_ORG && process.env.VERCEL_GITHUB_REPO)
@@ -63,28 +65,31 @@ async function persistQuery(queryText) {
   let accessToken = null;
   let fixedVariables = null;
   let cacheSeconds = null;
+  let operationName = null;
   let transformedAst = GraphQLLanguage.visit(ast, {
     OperationDefinition: {
       enter(node) {
+        operationName = node.name.value;
+        operationType = node.operation;
         for (const directive of node.directives) {
           if (directive.name.value === 'persistedQueryConfiguration') {
             const accessTokenArg = directive.arguments.find(
-              a => a.name.value === 'accessToken',
+              (a) => a.name.value === 'accessToken',
             );
             const fixedVariablesArg = directive.arguments.find(
-              a => a.name.value === 'fixedVariables',
+              (a) => a.name.value === 'fixedVariables',
             );
             const freeVariablesArg = directive.arguments.find(
-              a => a.name.value === 'freeVariables',
+              (a) => a.name.value === 'freeVariables',
             );
 
             const cacheSecondsArg = directive.arguments.find(
-              a => a.name.value === 'cacheSeconds',
+              (a) => a.name.value === 'cacheSeconds',
             );
 
             if (accessTokenArg) {
               const envArg = accessTokenArg.value.fields.find(
-                f => f.name.value === 'environmentVariable',
+                (f) => f.name.value === 'environmentVariable',
               );
               if (envArg) {
                 if (accessToken) {
@@ -107,7 +112,7 @@ async function persistQuery(queryText) {
 
             if (fixedVariablesArg) {
               const envArg = fixedVariablesArg.value.fields.find(
-                f => f.name.value === 'environmentVariable',
+                (f) => f.name.value === 'environmentVariable',
               );
               if (envArg) {
                 if (fixedVariables) {
@@ -142,72 +147,67 @@ async function persistQuery(queryText) {
         return {
           ...node,
           directives: node.directives.filter(
-            d => d.name.value !== 'persistedQueryConfiguration',
+            (d) => d.name.value !== 'persistedQueryConfiguration',
           ),
         };
       },
     },
   });
 
-  const variables = {
-    query: print(transformedAst),
-    // This is your app's app id, edit `/.env` to change it
-    appId:
-      process.env.NEXT_PUBLIC_ONEGRAPH_APP_ID ||
-      // Backwards compat with older apps that started with razzle
-      process.env.RAZZLE_ONEGRAPH_APP_ID,
-    accessToken: accessToken || null,
-    freeVariables: [...freeVariables],
-    fixedVariables: fixedVariables,
-    cacheStrategy: cacheSeconds
-      ? {
-          timeToLiveSeconds: cacheSeconds,
+  const apiHandler =
+    operationType === 'query'
+      ? `
+    import fetch from 'node-fetch';
+    const query = \`${print(transformedAst)}\`;
+    const token = process.env.GITHUB_TOKEN;
+    const variables = ${JSON.stringify(fixedVariables || {}, null, 2)};
+    const freeVariables = new Set(${JSON.stringify([...freeVariables])});
+    const ${operationName} = async (req, res) => {
+      if (freeVariables.size > 0 && req.query.variables) {
+        const requestVariables = JSON.parse(req.query.variables);
+        for (const v of freeVariables) {
+          variables[v] = requestVariables[v]
         }
-      : null,
-    fallbackOnError: cacheSeconds ? true : false,
-  };
+      }
 
-  const body = JSON.stringify({
-    query: PERSIST_QUERY_MUTATION,
-    variables,
-  });
-  return new Promise((resolve, reject) => {
-    let data = '';
-    const req = https.request(
-      {
-        hostname: 'serve.onegraph.com',
-        port: 443,
-        // This is the app id for the OneGraph dashbaord. If you followed the
-        // instructions in the README to create the `OG_DASHBOARD_ACCESS_TOKEN`,
-        // then this is the app id associated with the token that lets you persist
-        //  queries. Don't change this to your app id.
-        path: '/graphql?app_id=0b066ba6-ed39-4db8-a497-ba0be34d5b2a',
+      const resp = await fetch('https://api.github.com/graphql', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Content-Length': body.length,
-          Authorization: 'Bearer ' + process.env.OG_DASHBOARD_ACCESS_TOKEN,
+          Accept: 'application/json',
+          Authorization: \`Bearer \${token}\`,
+          'User-Agent': 'oneblog',
         },
-      },
-      res => {
-        res.on('data', chunk => {
-          data += chunk;
-        });
-        res.on('end', () => {
-          const resp = JSON.parse(data);
-          if (resp.errors) {
-            throw new Error(
-              'Error persisting query, errors=' + JSON.stringify(resp.errors),
-            );
-          } else {
-            resolve(resp.data.oneGraph.createPersistedQuery.persistedQuery.id);
-          }
-        });
-      },
-    );
-    req.write(body);
-    req.end();
-  });
+        body: JSON.stringify({query, variables})
+      });
+      const json = await resp.json();
+      res.setHeader('Content-Type', 'application/json');
+      if (${cacheSeconds}) {
+        res.setHeader(
+          'Cache-Control',
+          'public, s-maxage=${cacheSeconds}, stale-while-revalidate=${cacheSeconds}'
+        );
+      }
+      res.status(200).send(json);
+    }
+    export default ${operationName};`
+      : `
+    const ${operationName} = async (req, res) => {
+      const json = {"errors": [{"message": "Mutations are not yet supported"}]};
+      res.setHeader('Content-Type', 'application/json');
+      res.status(200).send(json);
+    }
+    export default ${operationName};
+`;
+
+  fs.mkdirSync('./src/pages/api/__generated__/', {recursive: true});
+
+  fs.writeFileSync(
+    `./src/pages/api/__generated__/${operationName}.js`,
+    prettier.format(apiHandler),
+  );
+
+  return operationName;
 }
 
 exports.default = persistQuery;

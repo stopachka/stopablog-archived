@@ -34,28 +34,26 @@ export const query = graphql`
     freeVariables: ["issueNumber"]
     cacheSeconds: 300
   ) {
-    gitHub {
-      viewer {
-        login
-        name
-        avatarUrl(size: 96)
-        url
-      }
-      ...Avatar_gitHub @arguments(repoName: $repoName, repoOwner: $repoOwner)
-      repository(name: $repoName, owner: $repoOwner) {
-        issue(number: $issueNumber) {
-          labels(first: 100) {
-            nodes {
-              name
-            }
+    viewer {
+      login
+      name
+      avatarUrl(size: 96)
+      url
+    }
+    ...Avatar_gitHub @arguments(repoName: $repoName, repoOwner: $repoOwner)
+    repository(name: $repoName, owner: $repoOwner) {
+      issue(number: $issueNumber) {
+        labels(first: 100) {
+          nodes {
+            name
           }
-          title
-          id
-          number
-          body
-          ...Post_post
-          ...Comments_post
         }
+        title
+        id
+        number
+        body
+        ...Post_post
+        ...Comments_post
       }
     }
   }
@@ -108,11 +106,11 @@ export const PostRoot = ({issueNumber}: {issueNumber: number}) => {
     return null;
   }
 
-  const post = data?.gitHub?.repository?.issue;
+  const post = data?.repository?.issue;
   const labels = post?.labels?.nodes;
-  const gitHub = data?.gitHub;
+
   if (
-    !gitHub ||
+    !data ||
     !post ||
     !labels ||
     !labels.find((l) => l && l.name.toLowerCase() === 'publish')
@@ -155,7 +153,6 @@ export const PostRoot = ({issueNumber}: {issueNumber: number}) => {
           <link rel="me" href="https://twitter.com/stopachka" />
         </Head>
         <Header
-          gitHub={gitHub}
           adminLinks={[
             {
               label: 'Edit post',

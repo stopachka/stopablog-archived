@@ -24,7 +24,7 @@ const Posts = ({relay, repository}: Props) => {
   React.useEffect(() => {
     if (inView && !isLoading && !relay.isLoading() && relay.hasMore()) {
       setIsLoading(true);
-      relay.loadMore(60, x => {
+      relay.loadMore(60, (x) => {
         setIsLoading(false);
       });
     }
@@ -74,12 +74,12 @@ export default createPaginationContainer(
   Posts,
   {
     repository: graphql`
-      fragment Posts_repository on GitHubRepository
+      fragment Posts_repository on Repository
       @argumentDefinitions(
         count: {type: "Int", defaultValue: 50}
         cursor: {type: "String"}
         orderBy: {
-          type: "GitHubIssueOrder"
+          type: "IssueOrder"
           defaultValue: {direction: DESC, field: CREATED_AT}
         }
       ) {
@@ -119,7 +119,7 @@ export default createPaginationContainer(
       query PostsPaginationQuery(
         $count: Int!
         $cursor: String
-        $orderBy: GitHubIssueOrder
+        $orderBy: IssueOrder
         $repoOwner: String!
         $repoName: String!
       )
@@ -129,12 +129,10 @@ export default createPaginationContainer(
         fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
         cacheSeconds: 300
       ) {
-        gitHub {
-          repository(name: $repoName, owner: $repoOwner) {
-            __typename
-            ...Posts_repository
-              @arguments(count: $count, cursor: $cursor, orderBy: $orderBy)
-          }
+        repository(name: $repoName, owner: $repoOwner) {
+          __typename
+          ...Posts_repository
+            @arguments(count: $count, cursor: $cursor, orderBy: $orderBy)
         }
       }
     `,

@@ -42,41 +42,20 @@ export const onegraphAuth =
     : new AuthDummy();
 
 async function sendRequest({onegraphAuth, operation, variables}) {
-  if (operation.operationKind === 'query' && operation.id) {
-    const url = new URL('https://serve.onegraph.com/graphql');
-    url.searchParams.set('app_id', config.appId);
-    url.searchParams.set('doc_id', operation.id);
-    url.searchParams.set('variables', JSON.stringify(stableCopy(variables)));
-    const response = await fetch(url.toString(), {
-      method: 'GET',
-      mode: 'cors',
-      headers: {
-        Accept: 'application/json',
-        ...onegraphAuth.authHeaders(),
-      },
-    });
-    return await response.json();
-  } else {
-    const requestBody = JSON.stringify({
-      doc_id: operation.id,
-      query: operation.text,
-      variables,
-    });
+  const url = `/api/__generated__/${
+    operation.id
+  }?variables=${encodeURIComponent(JSON.stringify(stableCopy(variables)))}`;
 
-    const response = await fetch(
-      'https://serve.onegraph.com/graphql?app_id=' + config.appId,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          ...onegraphAuth.authHeaders(),
-        },
-        body: requestBody,
-      },
-    );
-    return await response.json();
-  }
+  const response = await fetch(
+    typeof window !== 'undefined'
+      ? url
+      : (process.env.NODE_ENV === 'production'
+          ? config.vercelUrl || config.siteHostname
+          : 'http://localhost:3000') + url,
+  );
+  const json = await response.json();
+
+  return json;
 }
 
 async function checkifCorsRequired(): Promise<boolean> {
@@ -96,12 +75,6 @@ async function checkifCorsRequired(): Promise<boolean> {
 
 // Fix problem where relay gets nonnull `data` field and does weird things to the cache
 function maybeNullOutQuery(json) {
-  if (json.data && !json.data.gitHub) {
-    return {
-      ...json,
-      data: null,
-    };
-  }
   return json;
 }
 
@@ -145,6 +118,7 @@ function createFetchQuery(opts: ?Opts) {
         return maybeNullOutQuery(json);
       }
     } catch (e) {
+      console.error(e);
       if (typeof window !== 'undefined') {
         const isCorsRequired = await checkifCorsRequired();
         if (isCorsRequired) {

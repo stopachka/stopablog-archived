@@ -17,23 +17,21 @@ const sitemapQuery = graphql`
     freeVariables: ["cursor"]
     cacheSeconds: 300
   ) {
-    gitHub {
-      repository(name: $repoName, owner: $repoOwner) {
-        issues(
-          first: 100
-          after: $cursor
-          orderBy: {direction: DESC, field: CREATED_AT}
-          labels: ["publish", "Publish"]
-        ) {
-          pageInfo {
-            hasNextPage
-            endCursor
-          }
-          nodes {
-            number
-            title
-            updatedAt
-          }
+    repository(name: $repoName, owner: $repoOwner) {
+      issues(
+        first: 100
+        after: $cursor
+        orderBy: {direction: DESC, field: CREATED_AT}
+        labels: ["publish", "Publish"]
+      ) {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        nodes {
+          number
+          title
+          updatedAt
         }
       }
     }
@@ -60,7 +58,7 @@ export async function buildSitemap({siteHostname}: {siteHostname: string}) {
     ).toPromise();
     reqCount++;
 
-    for (const node of data?.gitHub?.repository?.issues?.nodes || []) {
+    for (const node of data?.repository?.issues?.nodes || []) {
       if (node) {
         smStream.write({
           url: `${basePath}${postPath({post: node})}`,
@@ -68,7 +66,7 @@ export async function buildSitemap({siteHostname}: {siteHostname: string}) {
         });
       }
     }
-    const pageInfo = data?.gitHub?.repository?.issues?.pageInfo;
+    const pageInfo = data?.repository?.issues?.pageInfo;
     hasNextPage = pageInfo?.hasNextPage;
     cursor = pageInfo?.endCursor;
     hasNextPage = cursor ? pageInfo?.hasNextPage : false;

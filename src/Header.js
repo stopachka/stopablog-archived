@@ -2,7 +2,7 @@
 import React from 'react';
 import Link from 'next/link';
 
-function Header({gitHub, adminLinks}) {
+function Header({adminLinks}) {
   return (
     <>
       <header

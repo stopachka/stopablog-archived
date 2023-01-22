@@ -37,23 +37,21 @@ import config from './config';
 // because we want to add reactions on behalf of the logged-in user, not the
 // persisted auth
 const addReactionMutation = graphql`
-  mutation Post_AddReactionMutation($input: GitHubAddReactionInput!)
+  mutation Post_AddReactionMutation($input: AddReactionInput!)
   @persistedQueryConfiguration(freeVariables: ["input"]) {
-    gitHub {
-      addReaction(input: $input) {
-        reaction {
-          content
-          user {
-            login
-            name
+    addReaction(input: $input) {
+      reaction {
+        content
+        user {
+          login
+          name
+        }
+        reactable {
+          ... on Issue {
+            ...Post_post
           }
-          reactable {
-            ... on GitHubIssue {
-              ...Post_post
-            }
-            ... on GitHubComment {
-              ...Comment_comment
-            }
+          ... on Comment {
+            ...Comment_comment
           }
         }
       }
@@ -62,23 +60,21 @@ const addReactionMutation = graphql`
 `;
 
 const removeReactionMutation = graphql`
-  mutation Post_RemoveReactionMutation($input: GitHubRemoveReactionInput!)
+  mutation Post_RemoveReactionMutation($input: RemoveReactionInput!)
   @persistedQueryConfiguration(freeVariables: ["input"]) {
-    gitHub {
-      removeReaction(input: $input) {
-        reaction {
-          content
-          user {
-            login
-            name
+    removeReaction(input: $input) {
+      reaction {
+        content
+        user {
+          login
+          name
+        }
+        reactable {
+          ... on Issue {
+            ...Post_post
           }
-          reactable {
-            ... on GitHubIssue {
-              ...Post_post
-            }
-            ... on GitHubComment {
-              ...Comment_comment
-            }
+          ... on Comment {
+            ...Comment_comment
           }
         }
       }
@@ -624,7 +620,7 @@ export const Post = ({relay, post, context}: Props) => {
 
 export default createFragmentContainer(Post, {
   post: graphql`
-    fragment Post_post on GitHubIssue {
+    fragment Post_post on Issue {
       id
       number
       title
