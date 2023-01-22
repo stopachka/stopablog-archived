@@ -107,13 +107,13 @@ async function persistQuery(queryText) {
     import fetch from 'node-fetch';
     const query = \`${print(transformedAst)}\`;
     const token = process.env.GITHUB_TOKEN;
-    const variables = ${JSON.stringify(fixedVariables || {}, null, 2)};
+    const fixedVariables = ${JSON.stringify(fixedVariables || {}, null, 2)};
     const freeVariables = new Set(${JSON.stringify([...freeVariables])});
-    const ${operationName} = async (req, res) => {
-      if (freeVariables.size > 0 && req.query.variables) {
-        const requestVariables = JSON.parse(req.query.variables);
+    export const fetchQuery = async (requestVariables) => {
+      const variables = {...fixedVariables};
+      if (freeVariables.size > 0 && requestVariables) {
         for (const v of freeVariables) {
-          variables[v] = requestVariables[v]
+          variables[v] = requestVariables[v];
         }
       }
 
@@ -128,6 +128,11 @@ async function persistQuery(queryText) {
         body: JSON.stringify({query, variables})
       });
       const json = await resp.json();
+      return json;
+    };
+
+    const ${operationName} = async (req, res) => {
+      const json = await fetchQuery(req.query.variables ? JSON.parse(req.query.variables) : null);
       res.setHeader('Content-Type', 'application/json');
       if (${cacheSeconds}) {
         res.setHeader(

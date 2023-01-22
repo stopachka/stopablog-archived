@@ -34,21 +34,21 @@ class AuthDummy {
 
 export const onegraphAuth = new AuthDummy();
 
-async function sendRequest({onegraphAuth, operation, variables}) {
-  const url = `/api/__generated__/${
-    operation.id
-  }?variables=${encodeURIComponent(JSON.stringify(stableCopy(variables)))}`;
+async function sendRequest({operation, variables}) {
+  if (typeof window !== 'undefined') {
+    const url = `/api/__generated__/${
+      operation.id
+    }?variables=${encodeURIComponent(JSON.stringify(stableCopy(variables)))}`;
+    const response = await fetch(url);
+    const json = await response.json();
 
-  const response = await fetch(
-    typeof window !== 'undefined'
-      ? url
-      : (process.env.NODE_ENV === 'production'
-          ? config.vercelUrl || config.siteHostname
-          : 'http://localhost:3000') + url,
-  );
-  const json = await response.json();
-
-  return json;
+    return json;
+  } else {
+    const {fetchQuery} = await import(
+      `./pages/api/__generated__/${operation.id}.js`
+    );
+    return await fetchQuery(variables);
+  }
 }
 
 async function checkifCorsRequired(): Promise<boolean> {
@@ -83,7 +83,6 @@ function createFetchQuery(opts: ?Opts) {
     }
 
     const json = await sendRequest({
-      onegraphAuth,
       operation,
       variables,
     });
