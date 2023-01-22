@@ -51,11 +51,6 @@ const config: Config = {
     process.env.NEXT_PUBLIC_GITHUB_REPO_NAME,
     'NEXT_PUBLIC_GITHUB_REPO_NAME',
   ),
-  // Your OneGraph app id
-  appId: ensureEnv(
-    process.env.NEXT_PUBLIC_ONEGRAPH_APP_ID,
-    'NEXT_PUBLIC_ONEGRAPH_APP_ID',
-  ),
   title: 'Stepan Parunashvili',
   description: 'Read essays by Stepan Parunashvili',
   defaultLogin: process.env.NEXT_PUBLIC_DEFAULT_GITHUB_LOGIN,

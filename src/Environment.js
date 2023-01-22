@@ -11,8 +11,6 @@ import {
 } from 'relay-runtime';
 import config from './config';
 
-import OneGraphAuth from 'onegraph-auth';
-
 import type {RecordMap, Handler} from 'relay-runtime/store/RelayStoreTypes';
 import type {NotificationContextType} from './Notifications';
 
@@ -34,12 +32,7 @@ class AuthDummy {
   }
 }
 
-export const onegraphAuth =
-  typeof window !== 'undefined'
-    ? new OneGraphAuth({
-        appId: config.appId,
-      })
-    : new AuthDummy();
+export const onegraphAuth = new AuthDummy();
 
 async function sendRequest({onegraphAuth, operation, variables}) {
   const url = `/api/__generated__/${
@@ -73,11 +66,6 @@ async function checkifCorsRequired(): Promise<boolean> {
   }
 }
 
-// Fix problem where relay gets nonnull `data` field and does weird things to the cache
-function maybeNullOutQuery(json) {
-  return json;
-}
-
 type Opts = {
   notificationContext?: ?NotificationContextType,
   registerMarkdown?: (markdown: string) => void,
@@ -94,45 +82,13 @@ function createFetchQuery(opts: ?Opts) {
       }
     }
 
-    try {
-      const json = await sendRequest({
-        onegraphAuth,
-        operation,
-        variables,
-      });
+    const json = await sendRequest({
+      onegraphAuth,
+      operation,
+      variables,
+    });
 
-      // eslint-disable-next-line no-unused-expressions
-      opts?.notificationContext?.clearCorsViolation();
-
-      if (json.errors && Object.keys(onegraphAuth.authHeaders()).length) {
-        // Clear auth on any error and try again
-        onegraphAuth.destroy();
-        const newJson = await sendRequest({
-          onegraphAuth,
-          headers: {},
-          operation,
-          variables,
-        });
-        return maybeNullOutQuery(newJson);
-      } else {
-        return maybeNullOutQuery(json);
-      }
-    } catch (e) {
-      console.error(e);
-      if (typeof window !== 'undefined') {
-        const isCorsRequired = await checkifCorsRequired();
-        if (isCorsRequired) {
-          const error = new Error('Missing CORS origin.');
-          (error: any).type = 'missing-cors';
-
-          // eslint-disable-next-line no-unused-expressions
-          opts?.notificationContext?.setCorsViolation();
-
-          throw error;
-        }
-      }
-      throw e;
-    }
+    return json;
   };
 }
 
