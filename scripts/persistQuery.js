@@ -122,7 +122,11 @@ async function persistQuery(queryText) {
                   );
                 }
                 const envVar = envArg.value.value;
-                fixedVariables = JSON.parse(process.env[envVar]);
+                try {
+                  fixedVariables = JSON.parse(process.env[envVar]);
+                } catch (e) {
+                  console.error(e);
+                }
                 if (!fixedVariables) {
                   throw new Error(
                     'Cannot persist query. Missing environment variable `' +
@@ -202,10 +206,9 @@ async function persistQuery(queryText) {
 
   fs.mkdirSync('./src/pages/api/__generated__/', {recursive: true});
 
-  fs.writeFileSync(
-    `./src/pages/api/__generated__/${operationName}.js`,
-    prettier.format(apiHandler),
-  );
+  const filename = `./src/pages/api/__generated__/${operationName}.js`;
+
+  fs.writeFileSync(filename, prettier.format(apiHandler, {filepath: filename}));
 
   return operationName;
 }
