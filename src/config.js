@@ -3,7 +3,6 @@
 export type Config = {
   repoName: string,
   repoOwner: string,
-  appId: string,
   title: string,
   description: ?string,
   defaultLogin: ?string,
@@ -11,7 +10,7 @@ export type Config = {
   gaTrackingId: ?string,
   vercelUrl: ?string,
   codeTheme: string,
-  postMarginPx: string,
+  postMarginPx: number,
 };
 
 function ensureEnv(s, variable: string): string {

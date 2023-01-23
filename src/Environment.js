@@ -124,7 +124,8 @@ let globalEnvironment;
 export function initEnvironment(initialRecords: ?RecordMap, opts?: ?Opts) {
   const environment = globalEnvironment ?? createEnvironment(opts);
   if (initialRecords) {
-    environment.getStore().publish(new RecordSource(initialRecords));
+    //console.log('publishing', initialRecords);
+    //environment.getStore().publish(new RecordSource(initialRecords));
   }
 
   if (typeof window !== 'undefined') {

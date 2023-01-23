@@ -44,6 +44,8 @@ const Posts = ({relay, repository}: Props) => {
     }
   }
 
+  console.log('edges', repository.issues.edges);
+
   return (
     <Box>
       {issues.map((post, i) => {
@@ -95,7 +97,7 @@ export default createPaginationContainer(
           after: $cursor
           orderBy: $orderBy
           labels: ["publish", "Publish"]
-        ) @connection(key: "Posts_posts_issues") {
+        ) @connection(key: "Posts_issues") {
           isClientFetched @__clientField(handle: "isClientFetched")
           edges {
             node {
@@ -150,8 +152,8 @@ export default createPaginationContainer(
       # repoName and repoOwner provided by fixedVariables
       query PostsPaginationQuery(
         $count: Int!
-        $cursor: String
-        $orderBy: IssueOrder
+        $cursor: String!
+        $orderBy: IssueOrder!
         $repoOwner: String!
         $repoName: String!
       )
