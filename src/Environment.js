@@ -35,7 +35,6 @@ class AuthDummy {
 export const onegraphAuth = new AuthDummy();
 
 async function sendRequest({operation, variables}) {
-  console.log('sendRequest', {operation, variables});
   if (typeof window !== 'undefined') {
     const url = `/api/__generated__/${
       operation.id
@@ -124,8 +123,7 @@ let globalEnvironment;
 export function initEnvironment(initialRecords: ?RecordMap, opts?: ?Opts) {
   const environment = globalEnvironment ?? createEnvironment(opts);
   if (initialRecords) {
-    //console.log('publishing', initialRecords);
-    //environment.getStore().publish(new RecordSource(initialRecords));
+    environment.getStore().publish(new RecordSource(initialRecords));
   }
 
   if (typeof window !== 'undefined') {

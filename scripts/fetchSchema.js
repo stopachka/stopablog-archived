@@ -57,8 +57,6 @@ function runIntrospectionQuery() {
   });
 }
 
-// XXX: Get rid of persistedQueryConfiguration, or at least the gh token aspect
-
 const persistQueryConfigDirective = `
   input PersistedQueryFixedVariablesConfiguration {
     "The environment variable that holds the fixed variables"
