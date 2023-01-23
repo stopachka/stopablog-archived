@@ -35,6 +35,7 @@ class AuthDummy {
 export const onegraphAuth = new AuthDummy();
 
 async function sendRequest({operation, variables}) {
+  console.log('sendRequest', {operation, variables});
   if (typeof window !== 'undefined') {
     const url = `/api/__generated__/${
       operation.id

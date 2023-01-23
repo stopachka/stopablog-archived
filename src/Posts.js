@@ -24,13 +24,20 @@ const Posts = ({relay, repository}: Props) => {
   React.useEffect(() => {
     if (inView && !isLoading && !relay.isLoading() && relay.hasMore()) {
       setIsLoading(true);
-      relay.loadMore(60, (x) => {
-        setIsLoading(false);
-      });
+      console.log('loading more');
+      relay.loadMore(
+        50,
+        (x) => {
+          console.log('loaded more', x);
+          setIsLoading(false);
+        },
+        {force: true},
+      );
     }
-  }, [relay, isLoading, setIsLoading, inView]);
+  }, [relay, inView, isLoading]);
 
   const issues = [];
+
   for (const edge of repository.issues.edges || []) {
     if (edge && edge.node) {
       issues.push(edge.node);
@@ -44,7 +51,7 @@ const Posts = ({relay, repository}: Props) => {
           <div
             key={post.number}
             className="post"
-            ref={!isLoading && i === issues.length - 1 ? inViewRef : null}>
+            ref={i === issues.length - 1 ? inViewRef : null}>
             <h4
               style={{
                 padding: '0 20px',
@@ -104,12 +111,26 @@ export default createPaginationContainer(
   {
     direction: 'forward',
     getConnectionFromProps(props) {
+      console.log('props', props);
       return props.repository && props.repository.issues;
     },
-    getVariables(props, {count, cursor}, fragmentVariables) {
+    getVariables(props, vs, fragmentVariables) {
+      const {count, cursor} = vs;
+      console.log('vs', vs);
+      console.log('fv', fragmentVariables);
+      // return {
+      //   count: count,
+      //   cursor,
+      //   orderBy: fragmentVariables.orderBy,
+      // };
+      console.log('myv', {
+        count: 50,
+        cursor: props.repository.issues.pageInfo.endCursor,
+        orderBy: fragmentVariables.orderBy,
+      });
       return {
-        count: count,
-        cursor,
+        count: 50,
+        cursor: props.repository.issues.pageInfo.endCursor,
         orderBy: fragmentVariables.orderBy,
       };
     },
