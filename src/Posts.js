@@ -51,7 +51,7 @@ const Posts = ({relay, repository}: Props) => {
           <div
             key={post.number}
             className="post"
-            ref={i === issues.length - 1 ? inViewRef : null}>
+            ref={!isLoading && i === issues.length - 1 ? inViewRef : null}>
             <h4
               style={{
                 padding: '0 20px',
@@ -111,9 +111,20 @@ export default createPaginationContainer(
   {
     direction: 'forward',
     getConnectionFromProps(props) {
-      console.log('props', props);
+      console.log('conn', props.repository.issues);
       return props.repository && props.repository.issues;
     },
+    getFragmentVariables(prevVars, totalCount) {
+      console.log('getfv', {
+        ...prevVars,
+        count: totalCount,
+      });
+      return {
+        ...prevVars,
+        count: totalCount,
+      };
+    },
+
     getVariables(props, vs, fragmentVariables) {
       const {count, cursor} = vs;
       console.log('vs', vs);

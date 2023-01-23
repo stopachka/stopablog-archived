@@ -21,7 +21,6 @@ export const query = graphql`
   ) {
     ...Avatar_gitHub @arguments(repoName: $repoName, repoOwner: $repoOwner)
     repository(name: $repoName, owner: $repoOwner) {
-      #createdAt
       ...Posts_repository
     }
   }

@@ -52,37 +52,13 @@ async function sendRequest({operation, variables}) {
   }
 }
 
-async function checkifCorsRequired(): Promise<boolean> {
-  try {
-    const response = await fetch(
-      'https://serve.onegraph.com/is-cors-origin-allowed?app_id=' +
-        config.appId,
-    );
-    const json = await response.json();
-    // Default to false on any error
-    return json.allowed === false;
-  } catch (e) {
-    console.error('Error checking if CORS required');
-    return false;
-  }
-}
-
 type Opts = {
   notificationContext?: ?NotificationContextType,
   registerMarkdown?: (markdown: string) => void,
 };
 
 function createFetchQuery(opts: ?Opts) {
-  return async function fetchQuery(operation, rawVariables, cacheConfig) {
-    const variables = {};
-    // Bit of a hack to prevent Relay from sending null values for variables
-    // we provided to OneGraph via fixedVariables.
-    for (const k of Object.keys(rawVariables)) {
-      if (rawVariables[k] != null) {
-        variables[k] = rawVariables[k];
-      }
-    }
-
+  return async function fetchQuery(operation, variables, cacheConfig) {
     const json = await sendRequest({
       operation,
       variables,
