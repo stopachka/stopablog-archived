@@ -37,7 +37,7 @@
     "start": "next",
     "build": "yarn relay && next build",
     "start:prod": "NODE_ENV=production node build/server.js",
-    "relay": "relay-compiler",
+    "relay": "node scripts/relay-compiler.js",
     "relay:clean": "rm -r src/__generated__ src/pages/api/__generated__",
     "flow": "flow",
     "fetch-schema": "node scripts/fetchSchema.js --path schema.graphql",
