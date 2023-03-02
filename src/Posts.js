@@ -53,7 +53,10 @@ const Posts = ({relay, repository}: Props) => {
                 fontWeight: 'normal',
                 margin: 0,
               }}>
-              <Link href="/post/[...slug]" as={`/post/${post.number}`}>
+              <Link
+                legacyBehavior
+                href="/post/[...slug]"
+                as={`/post/${post.number}`}>
                 <a style={{textDecoration: 'underline'}}>{post.title}</a>
               </Link>
             </h4>
@@ -107,10 +110,10 @@ export default createPaginationContainer(
     getConnectionFromProps(props) {
       return props.repository && props.repository.issues;
     },
-    getVariables(props, vs, fragmentVariables) {
+    getVariables(props, {count, cursor}, fragmentVariables) {
       return {
-        count: 50,
-        cursor: props.repository.issues.pageInfo.endCursor,
+        count: count,
+        cursor: cursor,
         orderBy: fragmentVariables.orderBy,
       };
     },

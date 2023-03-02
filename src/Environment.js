@@ -135,10 +135,10 @@ export function initEnvironment(initialRecords: ?RecordMap, opts?: ?Opts) {
 }
 
 export function useEnvironment(initialRecords: ?RecordMap, opts?: ?Opts) {
-  const store = React.useMemo(() => initEnvironment(initialRecords, opts), [
-    initialRecords,
-    opts,
-  ]);
+  const store = React.useMemo(
+    () => initEnvironment(initialRecords, opts),
+    [initialRecords, opts],
+  );
 
   return store;
 }

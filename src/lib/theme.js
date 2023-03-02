@@ -50,7 +50,7 @@ export const theme = deepMerge(generate(24, 10), {
       align: 'start',
       pad: {horizontal: 'small', vertical: 'xsmall'},
       border: 'small',
-      style: { fontWeight: 'bold'},
+      style: {fontWeight: 'bold'},
     },
     body: {
       border: 'small',

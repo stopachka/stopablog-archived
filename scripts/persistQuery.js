@@ -109,6 +109,19 @@ async function persistQuery(queryText) {
     const token = process.env.GITHUB_TOKEN;
     const fixedVariables = ${JSON.stringify(fixedVariables || {}, null, 2)};
     const freeVariables = new Set(${JSON.stringify([...freeVariables])});
+
+    function logRateLimit(resp) {
+      const reset = new Date(
+        parseInt(resp.headers.get('x-ratelimit-reset')) * 1000,
+      );
+      console.log(
+        'GitHub request for ${operationName}, rate limit: %s/%s resets at %s',
+        resp.headers.get('x-ratelimit-remaining'),
+        resp.headers.get('x-ratelimit-limit'),
+        reset,
+      );
+    }
+
     export const fetchQuery = async (requestVariables) => {
       const variables = {...fixedVariables};
       if (freeVariables.size > 0 && requestVariables) {
@@ -127,6 +140,7 @@ async function persistQuery(queryText) {
         },
         body: JSON.stringify({query, variables})
       });
+      logRateLimit(resp);
       const json = await resp.json();
       return json;
     };
