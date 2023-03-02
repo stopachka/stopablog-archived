@@ -14,7 +14,7 @@ function Header({adminLinks}) {
           padding: '20px',
         }}>
         <h4 className="app-header-title" style={{margin: 0, fontWeight: 500}}>
-          <Link href={'/'}>
+          <Link legacyBehavior href={'/'}>
             <a style={{color: 'inherit'}}>
               Stepan <span className="app-header-last-name">Parunashvili</span>
             </a>

@@ -53,7 +53,7 @@ const Posts = ({relay, repository}: Props) => {
                 fontWeight: 'normal',
                 margin: 0,
               }}>
-              <Link href="/post/[...slug]" as={`/post/${post.number}`}>
+              <Link legacyBehavior href="/post/[...slug]" as={`/post/${post.number}`}>
                 <a style={{textDecoration: 'underline'}}>{post.title}</a>
               </Link>
             </h4>
