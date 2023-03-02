@@ -17,9 +17,7 @@ const ErrorBox = ({error}: {error: any}) => {
       align="center"
       direction="row">
       <StatusCritical color="status-error" />{' '}
-      <Text size="medium">
-        {relayError || error.message}
-      </Text>
+      <Text size="medium">{relayError || error.message}</Text>
     </Box>
   );
 };

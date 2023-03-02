@@ -199,8 +199,9 @@ const EmojiPicker = ({
           borderLeft: i === 0 ? 'none' : '1px solid #e1e4e8',
         }}
         key={reaction}
-        onClick={() => (isSelected ? onDeselect(reaction) : onSelect(reaction))}
-      >
+        onClick={() =>
+          isSelected ? onDeselect(reaction) : onSelect(reaction)
+        }>
         <span role="img">{emojiForContent(reaction)}</span>
       </button>
     );
@@ -220,8 +221,7 @@ const EmojiPicker = ({
               style: 'solid',
               size: '1px',
               side: 'top',
-            }}
-          >
+            }}>
             {reactions
               .slice(0, 4)
               .map((reaction, i) => reactionContent(reaction, i))}
@@ -233,8 +233,7 @@ const EmojiPicker = ({
               style: 'solid',
               size: '1px',
               side: 'top',
-            }}
-          >
+            }}>
             {reactions
               .slice(4)
               .map((reaction, i) => reactionContent(reaction, i))}
@@ -260,8 +259,7 @@ export function PostBox({children}: {children: React.Node}) {
         maxWidth: 704,
         width: '100%',
         borderRadius: 2,
-      }}
-    >
+      }}>
       {children}
     </Box>
   );
@@ -300,8 +298,7 @@ export const ReactionBar = ({
       pad={pad || 'xsmall'}
       direction="row"
       justify="between"
-      border={{size: 'xsmall', side: 'top', color: 'rgba(0,0,0,0.1)'}}
-    >
+      border={{size: 'xsmall', side: 'top', color: 'rgba(0,0,0,0.1)'}}>
       <Box direction="row">
         <Tippy
           singleton={sourceTooltip}
@@ -366,13 +363,11 @@ export const ReactionBar = ({
                 }}
               />
             </Box>
-          }
-        >
+          }>
           <span
             style={{padding: '8px 16px'}}
             className="add-reaction-emoji"
-            onClick={() => setShowReactionPopover(!showReactionPopover)}
-          >
+            onClick={() => setShowReactionPopover(!showReactionPopover)}>
             <AddIcon width="12" />
             <EmojiIcon
               width="24"
@@ -416,8 +411,7 @@ export const ReactionBar = ({
                       {lowerCase(sentenceCase(g.content))} emoji
                     </Text>
                   </Box>
-                }
-              >
+                }>
                 <span
                   key={g.content}
                   style={{
@@ -425,8 +419,7 @@ export const ReactionBar = ({
                     borderLeft: '1px solid rgba(0,0,0,0.12)',
                     display: 'flex',
                     alignItems: 'center',
-                  }}
-                >
+                  }}>
                   <Text>{emojiForContent(g.content)} </Text>
                   <Text size="small" style={{marginLeft: 8}}>
                     {g.users.totalCount}
@@ -449,15 +442,13 @@ export const ReactionBar = ({
                 border: 'none',
                 margin: 0,
                 padding: 0,
-              }}
-            >
+              }}>
               <span
                 style={{
                   padding: '0 16px',
                   display: 'flex',
                   alignItems: 'center',
-                }}
-              >
+                }}>
                 <CommentsIcon width="12" />
               </span>
             </button>
@@ -603,8 +594,7 @@ export const Post = ({relay, post, context}: Props) => {
               legacyBehavior
               href="/post/[...slug]"
               as={postPath({post})}
-              shallow={true}
-            >
+              shallow={true}>
               <a style={{color: 'inherit'}}>{post.title}</a>
             </Link>
           </h1>
@@ -620,8 +610,7 @@ export const Post = ({relay, post, context}: Props) => {
                   <Link
                     legacyBehavior
                     href="/post/[...slug]"
-                    as={`${postPath({post})}${props.hash}`}
-                  >
+                    as={`${postPath({post})}${props.hash}`}>
                     <a>{props.children}</a>
                   </Link>
                 );

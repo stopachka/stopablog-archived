@@ -18,7 +18,9 @@ export default function Attribution() {
           OneBlog
         </a>{' '}
         with{' '}
-        <a href="https://docs.netlify.com/netlify-labs/experimental-features/netlify-graph/" target="_blank">
+        <a
+          href="https://docs.netlify.com/netlify-labs/experimental-features/netlify-graph/"
+          target="_blank">
           Netlify Graph
         </a>
       </Text>
