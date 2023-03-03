@@ -10,7 +10,6 @@ import {Box} from 'grommet/components/Box';
 import {Text} from 'grommet/components/Text';
 import format from 'date-fns/format';
 import formatDistance from 'date-fns/formatDistance';
-import EmailReplyParser from 'email-reply-parser';
 import imageUrl from './imageUrl';
 
 type Props = {
@@ -20,29 +19,29 @@ type Props = {
 export default function Comment({comment}: Props) {
   const data = useFragment(
     graphql`
-      fragment Comment_comment on GitHubIssueComment {
+      fragment Comment_comment on IssueComment {
         id
         body @__clientField(handle: "registerMarkdown")
         createdViaEmail
         author {
-          ... on GitHubUser {
+          ... on User {
             name
             avatarUrl(size: 96)
             login
             url
           }
-          ... on GitHubBot {
+          ... on Bot {
             avatarUrl(size: 96)
             login
             url
           }
-          ... on GitHubOrganization {
+          ... on Organization {
             name
             avatarUrl(size: 96)
             login
             url
           }
-          ... on GitHubMannequin {
+          ... on Mannequin {
             id
             login
             url
@@ -65,9 +64,7 @@ export default function Comment({comment}: Props) {
     `,
     comment,
   );
-  const source = data.createdViaEmail
-    ? new EmailReplyParser().read(data.body).getVisibleText()
-    : data.body;
+  const source = data.body;
   return (
     <PostBox key={data.id}>
       <Box pad={{left: 'small'}} direction="row" align="center" gap="xsmall">

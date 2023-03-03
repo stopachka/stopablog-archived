@@ -37,23 +37,21 @@ import config from './config';
 // because we want to add reactions on behalf of the logged-in user, not the
 // persisted auth
 const addReactionMutation = graphql`
-  mutation Post_AddReactionMutation($input: GitHubAddReactionInput!)
+  mutation Post_AddReactionMutation($input: AddReactionInput!)
   @persistedQueryConfiguration(freeVariables: ["input"]) {
-    gitHub {
-      addReaction(input: $input) {
-        reaction {
-          content
-          user {
-            login
-            name
+    addReaction(input: $input) {
+      reaction {
+        content
+        user {
+          login
+          name
+        }
+        reactable {
+          ... on Issue {
+            ...Post_post
           }
-          reactable {
-            ... on GitHubIssue {
-              ...Post_post
-            }
-            ... on GitHubComment {
-              ...Comment_comment
-            }
+          ... on Comment {
+            ...Comment_comment
           }
         }
       }
@@ -62,23 +60,21 @@ const addReactionMutation = graphql`
 `;
 
 const removeReactionMutation = graphql`
-  mutation Post_RemoveReactionMutation($input: GitHubRemoveReactionInput!)
+  mutation Post_RemoveReactionMutation($input: RemoveReactionInput!)
   @persistedQueryConfiguration(freeVariables: ["input"]) {
-    gitHub {
-      removeReaction(input: $input) {
-        reaction {
-          content
-          user {
-            login
-            name
+    removeReaction(input: $input) {
+      reaction {
+        content
+        user {
+          login
+          name
+        }
+        reactable {
+          ... on Issue {
+            ...Post_post
           }
-          reactable {
-            ... on GitHubIssue {
-              ...Post_post
-            }
-            ... on GitHubComment {
-              ...Comment_comment
-            }
+          ... on Comment {
+            ...Comment_comment
           }
         }
       }
@@ -436,7 +432,7 @@ export const ReactionBar = ({
       </Box>
       {commentsInfo ? (
         <Box direction="row" wrap={true}>
-          <Link as={commentsInfo.as} href={commentsInfo.href}>
+          <Link legacyBehavior as={commentsInfo.as} href={commentsInfo.href}>
             <button
               title={commentsInfo.count ? 'View comments' : 'Leave a comment'}
               style={{
@@ -542,7 +538,7 @@ export const Post = ({relay, post, context}: Props) => {
       loginStatus === 'logged-in'
     ) {
       // Refetch post if we log in to reset `viewerHasReacted` and friends
-      loadQuery.loadQuery(
+      loadQuery(
         environment,
         postRootQuery,
         {issueNumber: number},
@@ -558,14 +554,14 @@ export const Post = ({relay, post, context}: Props) => {
   // from OneGraph once the client-side code is loaded, esp. when logged in
   React.useEffect(() => {
     if (context === 'list') {
-      loadQuery.loadQuery(
+      loadQuery(
         environment,
         postRootQuery,
         {issueNumber: number},
         {fetchPolicy: 'store-or-network'},
       );
     } else if (context === 'details') {
-      loadQuery.loadQuery(
+      loadQuery(
         environment,
         postsRootQuery,
         {},
@@ -594,7 +590,11 @@ export const Post = ({relay, post, context}: Props) => {
       <div style={alterStyle}>
         <div style={{margin: `${config.postMarginPx}px`}}>
           <h1>
-            <Link href="/post/[...slug]" as={postPath({post})} shallow={true}>
+            <Link
+              legacyBehavior
+              href="/post/[...slug]"
+              as={postPath({post})}
+              shallow={true}>
               <a style={{color: 'inherit'}}>{post.title}</a>
             </Link>
           </h1>
@@ -608,6 +608,7 @@ export const Post = ({relay, post, context}: Props) => {
               HashLink={function HashLink(props) {
                 return (
                   <Link
+                    legacyBehavior
                     href="/post/[...slug]"
                     as={`${postPath({post})}${props.hash}`}>
                     <a>{props.children}</a>
@@ -624,7 +625,7 @@ export const Post = ({relay, post, context}: Props) => {
 
 export default createFragmentContainer(Post, {
   post: graphql`
-    fragment Post_post on GitHubIssue {
+    fragment Post_post on Issue {
       id
       number
       title

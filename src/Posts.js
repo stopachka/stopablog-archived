@@ -24,13 +24,14 @@ const Posts = ({relay, repository}: Props) => {
   React.useEffect(() => {
     if (inView && !isLoading && !relay.isLoading() && relay.hasMore()) {
       setIsLoading(true);
-      relay.loadMore(60, x => {
+      relay.loadMore(50, (x) => {
         setIsLoading(false);
       });
     }
-  }, [relay, isLoading, setIsLoading, inView]);
+  }, [relay, inView, isLoading]);
 
   const issues = [];
+
   for (const edge of repository.issues.edges || []) {
     if (edge && edge.node) {
       issues.push(edge.node);
@@ -52,7 +53,10 @@ const Posts = ({relay, repository}: Props) => {
                 fontWeight: 'normal',
                 margin: 0,
               }}>
-              <Link href="/post/[...slug]" as={`/post/${post.number}`}>
+              <Link
+                legacyBehavior
+                href="/post/[...slug]"
+                as={`/post/${post.number}`}>
                 <a style={{textDecoration: 'underline'}}>{post.title}</a>
               </Link>
             </h4>
@@ -74,12 +78,12 @@ export default createPaginationContainer(
   Posts,
   {
     repository: graphql`
-      fragment Posts_repository on GitHubRepository
+      fragment Posts_repository on Repository
       @argumentDefinitions(
         count: {type: "Int", defaultValue: 50}
         cursor: {type: "String"}
         orderBy: {
-          type: "GitHubIssueOrder"
+          type: "IssueOrder"
           defaultValue: {direction: DESC, field: CREATED_AT}
         }
       ) {
@@ -88,7 +92,7 @@ export default createPaginationContainer(
           after: $cursor
           orderBy: $orderBy
           labels: ["publish", "Publish"]
-        ) @connection(key: "Posts_posts_issues") {
+        ) @connection(key: "Posts_issues") {
           isClientFetched @__clientField(handle: "isClientFetched")
           edges {
             node {
@@ -109,7 +113,7 @@ export default createPaginationContainer(
     getVariables(props, {count, cursor}, fragmentVariables) {
       return {
         count: count,
-        cursor,
+        cursor: cursor,
         orderBy: fragmentVariables.orderBy,
       };
     },
@@ -118,23 +122,20 @@ export default createPaginationContainer(
       # repoName and repoOwner provided by fixedVariables
       query PostsPaginationQuery(
         $count: Int!
-        $cursor: String
-        $orderBy: GitHubIssueOrder
+        $cursor: String!
+        $orderBy: IssueOrder!
         $repoOwner: String!
         $repoName: String!
       )
       @persistedQueryConfiguration(
-        accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
         freeVariables: ["count", "cursor", "orderBy"]
         fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
         cacheSeconds: 300
       ) {
-        gitHub {
-          repository(name: $repoName, owner: $repoOwner) {
-            __typename
-            ...Posts_repository
-              @arguments(count: $count, cursor: $cursor, orderBy: $orderBy)
-          }
+        repository(name: $repoName, owner: $repoOwner) {
+          __typename
+          ...Posts_repository
+            @arguments(count: $count, cursor: $cursor, orderBy: $orderBy)
         }
       }
     `,

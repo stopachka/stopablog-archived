@@ -3,7 +3,6 @@
 export type Config = {
   repoName: string,
   repoOwner: string,
-  appId: string,
   title: string,
   description: ?string,
   defaultLogin: ?string,
@@ -11,7 +10,7 @@ export type Config = {
   gaTrackingId: ?string,
   vercelUrl: ?string,
   codeTheme: string,
-  postMarginPx: string,
+  postMarginPx: number,
 };
 
 function ensureEnv(s, variable: string): string {
@@ -50,11 +49,6 @@ const config: Config = {
   repoName: ensureEnv(
     process.env.NEXT_PUBLIC_GITHUB_REPO_NAME,
     'NEXT_PUBLIC_GITHUB_REPO_NAME',
-  ),
-  // Your OneGraph app id
-  appId: ensureEnv(
-    process.env.NEXT_PUBLIC_ONEGRAPH_APP_ID,
-    'NEXT_PUBLIC_ONEGRAPH_APP_ID',
   ),
   title: 'Stepan Parunashvili',
   description: 'Read essays by Stepan Parunashvili',

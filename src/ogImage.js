@@ -16,27 +16,24 @@ const postQuery = graphql`
     $repoOwner: String!
   )
   @persistedQueryConfiguration(
-    accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
     fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
     freeVariables: ["issueNumber"]
     cacheSeconds: 300
   ) {
-    gitHub {
-      repository(name: $repoName, owner: $repoOwner) {
-        owner {
-          avatarUrl(size: 1200)
-        }
-        issue(number: $issueNumber) {
-          labels(first: 100) {
-            nodes {
-              name
-            }
+    repository(name: $repoName, owner: $repoOwner) {
+      owner {
+        avatarUrl(size: 1200)
+      }
+      issue(number: $issueNumber) {
+        labels(first: 100) {
+          nodes {
+            name
           }
-          body
-          assignees(first: 10) {
-            nodes {
-              avatarUrl(size: 1200)
-            }
+        }
+        body
+        assignees(first: 10) {
+          nodes {
+            avatarUrl(size: 1200)
           }
         }
       }
@@ -118,7 +115,7 @@ export const ogImage = async (req: any, res: any) => {
     issueNumber: postNumber,
   }).toPromise();
 
-  const issue = data?.gitHub?.repository?.issue;
+  const issue = data?.repository?.issue;
   if (
     !issue ||
     !issue.labels?.nodes?.length ||
@@ -140,7 +137,7 @@ export const ogImage = async (req: any, res: any) => {
   } else {
     const avatarUrl =
       issue?.assignees?.nodes?.[0]?.avatarUrl ||
-      data.gitHub.repository?.owner?.avatarUrl;
+      data.repository?.owner?.avatarUrl;
 
     if (avatarUrl) {
       return await proxyImage(res, avatarUrl);
