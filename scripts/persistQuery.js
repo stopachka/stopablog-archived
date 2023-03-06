@@ -30,7 +30,7 @@ if (
 
 async function persistQuery(queryText) {
   const ast = parse(queryText, {noLocation: true});
-  
+
   const freeVariables = new Set([]);
   let fixedVariables = null;
   let cacheSeconds = null;
