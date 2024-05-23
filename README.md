@@ -1,3 +1,9 @@
+# [Archive] stopa.io's previous blog
+
+For the last four years, stopa.io ran beautifully on onegraph.com. After OneGraph was acquired, I moved this to a projects that uses Nextjs and [Instant](www.instantdb.com). You can see the code on [stopachka/stopaio](https://github.com/stopachka/stopaio)
+
+---
+
 # Build a blog powered by GitHub issues
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https%3A%2F%2Fgithub.com%2FOneGraph%2Foneblog%2Ftree%2Fnext&env=NEXT_PUBLIC_ONEGRAPH_APP_ID,NEXT_PUBLIC_TITLE,OG_GITHUB_TOKEN,OG_DASHBOARD_ACCESS_TOKEN,VERCEL_URL,VERCEL_GITHUB_ORG,VERCEL_GITHUB_REPO&envDescription=Variables%20needed%20to%20build%20your%20OneBlog&envLink=https%3A%2F%2Fgithub.com%2FOneGraph%2Foneblog%2Ftree%2Fnext%23environment-variables&project-name=oneblog&repo-name=oneblog)
